@@ -15,3 +15,5 @@ symbol_level=1
 use_thin_lto=true
 use_sysroot=false
 use_system_xcode=true
+mac_allow_system_xcode_for_official_builds_for_testing=true
+use_clang_modules=false
