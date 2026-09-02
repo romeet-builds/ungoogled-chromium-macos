@@ -17,7 +17,7 @@
        case TabSlotView::ViewType::kTab:
          if (!slot.state.IsClosed()) {
 -          tabs->set_ideal_bounds(current_tab_model_index, bounds[i]);
-+          if (slot.state.is_pinned) {
++          if (slot.state.pinned() == TabPinned::kPinned) {
 +            int col = pinned_idx % kCols;
 +            int row = pinned_idx / kCols;
 +            tabs->set_ideal_bounds(current_tab_model_index,
