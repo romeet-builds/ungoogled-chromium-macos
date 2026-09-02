@@ -14,3 +14,20 @@
  #include "base/apple/mach_logging.h"
  #include "base/apple/scoped_mach_port.h"
  #endif
+
+--- a/mojo/core/channel_mac.cc
++++ b/mojo/core/channel_mac.cc
+@@ -6,8 +6,12 @@
+ 
+ #include <mach/mach.h>
+ #include <string.h>
+-#include <sys/fileport.h>
+ #include <unistd.h>
++
++extern "C" {
++int fileport_makefd(mach_port_t);
++kern_return_t fileport_makeport(int, mach_port_t*);
++}
+ 
+ #include <algorithm>
+ #include <memory>
