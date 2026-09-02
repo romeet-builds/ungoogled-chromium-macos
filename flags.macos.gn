@@ -14,3 +14,4 @@ proprietary_codecs=true
 symbol_level=1
 use_thin_lto=true
 use_sysroot=false
+use_system_xcode=true
