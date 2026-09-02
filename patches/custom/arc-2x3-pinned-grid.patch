@@ -1,67 +1,33 @@
---- a/chrome/browser/ui/views/tabs/tab.cc
-+++ b/chrome/browser/ui/views/tabs/tab.cc
-@@ -210,6 +210,18 @@ void Tab::Layout(PassKey) {
-+  // Arc-style 2x3 pinned icon grid rendering
-+  if (data().pinned) {
-+    if (title_) {
-+      title_->SetVisible(false);
-+    }
-+    if (close_button_) {
-+      close_button_->SetVisible(false);
-+    }
-+    if (icon_) {
-+      int icon_x = (width() - icon_->width()) / 2;
-+      int icon_y = (height() - icon_->height()) / 2;
-+      icon_->SetPosition(gfx::Point(icon_x, icon_y));
-+    }
-+    return;
-+  }
-+
-   LayoutStandardVerticalTab();
- }
 --- a/chrome/browser/ui/views/tabs/tab_strip_layout_helper.cc
 +++ b/chrome/browser/ui/views/tabs/tab_strip_layout_helper.cc
-@@ -145,6 +145,35 @@ void TabStripLayoutHelper::CalculateVerticalBounds(
-     const std::vector<Tab*>& tabs,
-     int available_width) {
+@@ -222,12 +222,29 @@
+   }
+ 
+   int current_tab_model_index = 0;
++  int pinned_idx = 0;
++  constexpr int kCols = 3;
++  constexpr int kTile = 42;
++  constexpr int kGap = 6;
++  constexpr int kPadX = 8;
++  constexpr int kPadY = 8;
 +
-+  // Arc 2x3 Pinned Grid Configuration
-+  constexpr int kGridColumns = 3;
-+  constexpr int kTileSize = 42;
-+  constexpr int kGridSpacing = 6;
-+  constexpr int kGridPaddingX = 10;
-+  constexpr int kGridPaddingY = 8;
-+  constexpr int kDividerMargin = 12;
-+  constexpr int kRegularTabHeight = 36;
-+  constexpr int kTabGap = 4;
-+
-+  int pinned_count = 0;
-+  int unpinned_y_offset = kGridPaddingY;
-+
-+  // Step 1: Layout pinned tabs in 2x3 matrix
-+  for (Tab* tab : tabs) {
-+    if (tab->data().pinned) {
-+      int col = pinned_count % kGridColumns;
-+      int row = pinned_count / kGridColumns;
-+      int x = kGridPaddingX + col * (kTileSize + kGridSpacing);
-+      int y = kGridPaddingY + row * (kTileSize + kGridSpacing);
-+      tab->SetBounds(x, y, kTileSize, kTileSize);
-+      pinned_count++;
-+    }
-+  }
-+
-+  // Step 2: Offset unpinned tabs below the 2x3 grid
-+  int total_pinned_rows = (pinned_count + kGridColumns - 1) / kGridColumns;
-+  if (pinned_count > 0) {
-+    unpinned_y_offset += (total_pinned_rows * (kTileSize + kGridSpacing)) + kDividerMargin;
-+  }
-+
-+  // Step 3: Layout unpinned tabs vertically
-+  int tab_width = available_width - (2 * kGridPaddingX);
-+  for (Tab* tab : tabs) {
-+    if (!tab->data().pinned) {
-+      tab->SetBounds(kGridPaddingX, unpinned_y_offset, tab_width, kRegularTabHeight);
-+      unpinned_y_offset += kRegularTabHeight + kTabGap;
-+    }
-+  }
- }
+   for (int i = 0; i < static_cast<int>(bounds.size()); ++i) {
+     const TabSlot& slot = slots_[i];
+     switch (slot.type) {
+       case TabSlotView::ViewType::kTab:
+         if (!slot.state.IsClosed()) {
+-          tabs->set_ideal_bounds(current_tab_model_index, bounds[i]);
++          if (slot.state.is_pinned) {
++            int col = pinned_idx % kCols;
++            int row = pinned_idx / kCols;
++            tabs->set_ideal_bounds(current_tab_model_index,
++                                   gfx::Rect(kPadX + col * (kTile + kGap),
++                                             kPadY + row * (kTile + kGap),
++                                             kTile, kTile));
++            pinned_idx++;
++          } else {
++            tabs->set_ideal_bounds(current_tab_model_index, bounds[i]);
++          }
+           ++current_tab_model_index;
+         }
+         break;
