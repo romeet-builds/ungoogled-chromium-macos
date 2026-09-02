@@ -3,22 +3,15 @@
 set -euo pipefail
 shopt -s extglob
 
-BASE_XCODE_PATH=/Applications/Xcode_26.0.app
+AVAILABLE_XCODE=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -n 1)
 
-if [ ! -e "$BASE_XCODE_PATH" ]; then
-  echo "Failed to find a suitable version of Xcode"
-  exit 1
+if [ -n "$AVAILABLE_XCODE" ] && [ -d "$AVAILABLE_XCODE" ]; then
+  echo "Found Xcode at: $AVAILABLE_XCODE"
+  sudo xcode-select --switch "$AVAILABLE_XCODE"
+else
+  echo "Using default xcode-select: $(xcode-select -p)"
 fi
 
-TARGET_XCODE_VERSION="$(readlink -f "$BASE_XCODE_PATH" | xargs basename | sed 's/Xcode_//' | sed 's/.app//')"
-
-ls -l /Applications | grep Xcode
-
-sudo rm -rf /Applications/Xcode_!("$TARGET_XCODE_VERSION").app
-if [ ! -e /Applications/Xcode_26.app ]; then
-  # try to keep paths consistent between jobs.
-  sudo mv "/Applications/Xcode_$TARGET_XCODE_VERSION.app" /Applications/Xcode_26.app
+if command -v xcrun &>/dev/null; then
+  sudo xcrun simctl delete all 2>/dev/null || true
 fi
-
-sudo xcode-select --switch /Applications/Xcode_26.app
-sudo xcrun simctl delete all
