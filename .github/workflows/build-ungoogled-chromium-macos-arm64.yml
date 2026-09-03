@@ -67,11 +67,6 @@ jobs:
           chmod +x *.sh
           ./github_prepare_xcode.sh
 
-      - name: Setup Python Environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
       - name: Install Build Dependencies
         shell: bash
         run: |
