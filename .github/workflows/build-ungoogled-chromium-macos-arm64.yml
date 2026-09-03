@@ -1,0 +1,165 @@
+name: Build Ungoogled Chromium macOS arm64
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: 'Choose CI Runner'
+        required: true
+        default: 'bitrise-m4-pro'
+        type: choice
+        options:
+          - 'bitrise-m4-pro'
+          - 'depot-macos-14'
+  push:
+    branches:
+      - master
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Ungoogled Chromium (arm64)
+    runs-on: ${{ inputs.runner || 'bitrise-m4-pro' }}
+    timeout-minutes: 1440
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Inspect Runner Hardware & Environment
+        shell: bash
+        run: |
+          set -euxo pipefail
+          echo "=== Architecture ==="
+          uname -m
+          echo "=== macOS Version ==="
+          sw_vers
+          echo "=== CPU Info ==="
+          sysctl -n hw.ncpu || true
+          sysctl -n hw.physicalcpu || true
+          sysctl -n machdep.cpu.brand_string || true
+          echo "=== Memory Info ==="
+          sysctl -n hw.memsize || true
+          echo "=== Available Disk Space ==="
+          df -h /
+          echo "=== Installed Xcode ==="
+          xcodebuild -version || true
+          echo "=== Clang Version ==="
+          clang --version || true
+          echo "=== Python Version ==="
+          python3 --version || true
+
+      - name: Cleanup unnecessary toolchains to free disk space
+        shell: bash
+        run: |
+          sudo rm -rf "$ANDROID_HOME" "$ANDROID_NDK_HOME" /Library/Developer/CommandLineTools || true
+          sudo mdutil -a -i off || true
+          df -h /
+
+      - name: Prepare Xcode & Developer Tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cp -va ./.github/scripts/ ./
+          chmod +x *.sh
+          ./github_prepare_xcode.sh
+
+      - name: Setup Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Build Dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          brew install coreutils ninja || true
+
+      - name: Retrieve and Unpack Chromium Resources
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ./retrieve_and_unpack_resource.py -g arm64
+          ./retrieve_and_unpack_resource.py -p arm64
+
+      - name: Configure Ungoogled Chromium Patches & Substitutions
+        shell: bash
+        run: |
+          set -euxo pipefail
+          _src_dir="build/src"
+          _main_repo="ungoogled-chromium"
+
+          mkdir -p "$_src_dir/out/Default"
+
+          # 1. Prune Google proprietary binaries
+          python3 "$_main_repo/utils/prune_binaries.py" "$_src_dir" "$_main_repo/pruning.list"
+
+          # 2. Apply patches (including our custom macOS patches and 2x3 grid)
+          python3 "$_main_repo/utils/patches.py" apply "$_src_dir" "$_main_repo/patches" "./patches"
+
+          # 3. Domain substitution (replace Google URLs with no-op)
+          python3 "$_main_repo/utils/domain_substitution.py" apply -r "$_main_repo/domain_regex.list" -f "$_main_repo/domain_substitution.list" "$_src_dir"
+
+          # 4. Generate gn build flags
+          cat "$_main_repo/flags.gn" "./flags.macos.gn" > "$_src_dir/out/Default/args.gn"
+          echo 'target_cpu = "arm64"' >> "$_src_dir/out/Default/args.gn"
+
+      - name: Bootstrap GN & Generate Build Graph
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd build/src
+
+          ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
+          ./tools/rust/build_bindgen.py --skip-test || true
+
+          ./out/Default/gn gen out/Default --fail-on-unused-args
+
+      - name: Build Chromium (arm64)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd build/src
+
+          CORES="$(sysctl -n hw.ncpu)"
+          echo "Building Chromium with $CORES parallel CPU threads on Bitrise/Depot..."
+
+          ninja -C out/Default -j"$CORES" chrome chromedriver
+
+      - name: Validate output binary
+        shell: bash
+        run: |
+          set -euxo pipefail
+          _app_path="build/src/out/Default/Chromium.app"
+
+          file "$_app_path/Contents/MacOS/Chromium" || true
+          lipo -info "$_app_path/Contents/MacOS/Chromium" || true
+          codesign --display --verbose=2 "$_app_path" 2>&1 || true
+          du -sh "$_app_path"
+
+      - name: Package Application (DMG & ZIP)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          CHROMIUM_SRC_DIR="build/src" ./sign_and_package_app.sh || true
+
+          cd build/src/out/Default
+          ditto -c -k --sequesterRsrc --keepParent \
+            Chromium.app \
+            ../../../../UngoogledChromium-macOS-arm64.zip
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ungoogled-chromium-macos-arm64
+          path: |
+            UngoogledChromium-macOS-arm64.zip
+            build/src/out/Default/*.dmg
+            build/src/out/Default/*.zip
+          retention-days: 7
