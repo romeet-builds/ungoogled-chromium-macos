@@ -74,12 +74,11 @@ jobs:
           brew install coreutils ninja go || true
           pip3 install httplib2 PySocks --break-system-packages || pip install httplib2 PySocks || true
 
-      - name: Retrieve and Unpack Chromium Resources
+      - name: Retrieve Chromium Source
         shell: bash
         run: |
           set -euxo pipefail
           ./retrieve_and_unpack_resource.py -g arm64
-          ./retrieve_and_unpack_resource.py -p arm64
 
       - name: Configure Ungoogled Chromium Patches & Substitutions
         shell: bash
@@ -103,14 +102,19 @@ jobs:
           cat "$_main_repo/flags.gn" "./flags.macos.gn" > "$_src_dir/out/Default/args.gn"
           echo 'target_cpu = "arm64"' >> "$_src_dir/out/Default/args.gn"
 
-      - name: Bootstrap GN & Generate Build Graph
+          # 5. Retrieve platform-specific toolchains (LLVM, Rust toolchain, Node, bindgen inputs)
+          mkdir -p "$_src_dir/third_party/llvm-build/Release+Asserts"
+          mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
+          ./retrieve_and_unpack_resource.py -p arm64
+
+      - name: Bootstrap GN & Build Rust Bindgen
         shell: bash
         run: |
           set -euxo pipefail
           cd build/src
 
           ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
-          ./tools/rust/build_bindgen.py --skip-test || true
+          ./tools/rust/build_bindgen.py --skip-test
 
           ./out/Default/gn gen out/Default --fail-on-unused-args
 
