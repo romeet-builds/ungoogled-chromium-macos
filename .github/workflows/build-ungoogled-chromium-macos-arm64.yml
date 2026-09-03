@@ -4,13 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       runner:
-        description: 'Choose CI Runner'
+        description: 'Choose CI Runner Label'
         required: true
-        default: 'bitrise-m4-pro'
-        type: choice
-        options:
-          - 'bitrise-m4-pro'
-          - 'depot-macos-14'
+        default: 'bitrise-m2-pro-x-large'
+        type: string
   push:
     branches:
       - master
@@ -22,7 +19,7 @@ permissions:
 jobs:
   build:
     name: Build Ungoogled Chromium (arm64)
-    runs-on: ${{ inputs.runner || 'bitrise-m4-pro' }}
+    runs-on: ${{ inputs.runner || 'bitrise-m2-pro-x-large' }}
     timeout-minutes: 1440
 
     steps:
@@ -100,7 +97,7 @@ jobs:
           # 1. Prune Google proprietary binaries
           python3 "$_main_repo/utils/prune_binaries.py" "$_src_dir" "$_main_repo/pruning.list"
 
-          # 2. Apply patches (including our custom macOS patches and 2x3 grid)
+          # 2. Apply patches (including custom macOS patches and 2x3 grid)
           python3 "$_main_repo/utils/patches.py" apply "$_src_dir" "$_main_repo/patches" "./patches"
 
           # 3. Domain substitution (replace Google URLs with no-op)
