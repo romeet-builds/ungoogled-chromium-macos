@@ -20,3 +20,4 @@ custom/fix-mojo-fileport.patch
 custom/fix-skia-cgimage-byteorder.patch
 custom/fix-screen-utils-displayid.patch
 custom/fix-ax-inspect-utils.patch
+custom/fix-ax-element-wrapper.patch
