@@ -17,3 +17,4 @@ ungoogled-chromium/macos/fix-build-without-crubit.patch
 custom/arc-2x3-pinned-grid.patch
 custom/fix-posix-spawn-addchdir.patch
 custom/fix-mojo-fileport.patch
+custom/fix-skia-cgimage-byteorder.patch
