@@ -24,3 +24,4 @@ custom/fix-ax-element-wrapper.patch
 custom/fix-ax-event-recorder.patch
 custom/fix-ax-comprehensive-constants.patch
 custom/fix-appkit-utils-pasteboard.patch
+custom/fix-browser-accessibility-cocoa-constants.patch
