@@ -1,9 +1,10 @@
 --- a/ui/accessibility/platform/ax_private_webkit_constants_mac.h
 +++ b/ui/accessibility/platform/ax_private_webkit_constants_mac.h
-@@ -10,6 +10,219 @@
+@@ -9,6 +9,264 @@
+ #import <Foundation/Foundation.h>
  
  #include "base/component_export.h"
- 
++
 +
 +// Comprehensive fallback definitions for private Apple WebKit accessibility symbols.
 +#ifndef kAXExpandedChangedNotification
@@ -216,7 +217,51 @@
 +#ifndef kAXSortDirectionAttribute
 +#define kAXSortDirectionAttribute CFSTR("AXSortDirection")
 +#endif
-+
++#ifndef kAXNextParagraphEndTextMarkerForTextMarkerParameterizedAttribute
++#define kAXNextParagraphEndTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXNextParagraphEndTextMarkerForTextMarker")
++#endif
++#ifndef kAXNextSentenceEndTextMarkerForTextMarkerParameterizedAttribute
++#define kAXNextSentenceEndTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXNextSentenceEndTextMarkerForTextMarker")
++#endif
++#ifndef kAXPreviousParagraphStartTextMarkerForTextMarkerParameterizedAttribute
++#define kAXPreviousParagraphStartTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXPreviousParagraphStartTextMarkerForTextMarker")
++#endif
++#ifndef kAXPreviousSentenceStartTextMarkerForTextMarkerParameterizedAttribute
++#define kAXPreviousSentenceStartTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXPreviousSentenceStartTextMarkerForTextMarker")
++#endif
++#ifndef kAXSentenceTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXSentenceTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXSentenceTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXParagraphTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXParagraphTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXParagraphTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXPreviousLineStartTextMarkerForTextMarkerParameterizedAttribute
++#define kAXPreviousLineStartTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXPreviousLineStartTextMarkerForTextMarker")
++#endif
++#ifndef kAXPreviousWordStartTextMarkerForTextMarkerParameterizedAttribute
++#define kAXPreviousWordStartTextMarkerForTextMarkerParameterizedAttribute CFSTR("AXPreviousWordStartTextMarkerForTextMarker")
++#endif
++#ifndef kAXLeftLineTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXLeftLineTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXLeftLineTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXLeftWordTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXLeftWordTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXLeftWordTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXRightLineTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXRightLineTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXRightLineTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXRightWordTextMarkerRangeForTextMarkerParameterizedAttribute
++#define kAXRightWordTextMarkerRangeForTextMarkerParameterizedAttribute CFSTR("AXRightWordTextMarkerRangeForTextMarker")
++#endif
++#ifndef kAXTextMarkerRangeForUnorderedTextMarkersParameterizedAttribute
++#define kAXTextMarkerRangeForUnorderedTextMarkersParameterizedAttribute CFSTR("AXTextMarkerRangeForUnorderedTextMarkers")
++#endif
++#ifndef kAXCustomActionNamesForTestingAttribute
++#define kAXCustomActionNamesForTestingAttribute CFSTR("AXCustomActionNamesForTesting")
++#endif
++#ifndef kAXResultsLimitNoLimit
++#define kAXResultsLimitNoLimit 0
++#endif
+ 
  namespace ui {
  
- enum AXTextStateChangeType {
