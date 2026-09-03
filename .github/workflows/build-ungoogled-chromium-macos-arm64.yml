@@ -71,7 +71,8 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          brew install coreutils ninja || true
+          brew install coreutils ninja go || true
+          pip3 install httplib2 PySocks --break-system-packages || pip install httplib2 PySocks || true
 
       - name: Retrieve and Unpack Chromium Resources
         shell: bash
