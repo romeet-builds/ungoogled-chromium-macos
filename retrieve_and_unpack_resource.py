@@ -355,6 +355,11 @@ def _retrieve_platform_specific(target_cpu: str) -> None:
     rustc_lib_dir.symlink_to(rust_lib_dir)
     (rust_dir / "rustfmt-preview" / "lib").symlink_to(rust_dir / "rustc" / "lib")
 
+    bindgen_bin = shutil.which("bindgen") or os.path.expanduser("~/.cargo/bin/bindgen")
+    if os.path.isfile(bindgen_bin):
+        _replace_symlink(Path(bindgen_bin), rust_bin_dir / "bindgen")
+
+
     llvm_bin_dir = SRC_DIR / "third_party" / "llvm-build" / "Release+Asserts" / "bin"
     (llvm_bin_dir / "install_name_tool").symlink_to(
         llvm_bin_dir / "llvm-install-name-tool")
