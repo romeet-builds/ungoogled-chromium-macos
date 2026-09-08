@@ -115,8 +115,10 @@ jobs:
           set -euxo pipefail
           cd build/src
 
-          # Ensure ninja (Homebrew) and LLVM Clang are on PATH
-          export PATH="/opt/homebrew/bin:$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
+          # Ensure ninja and LLVM Clang paths are explicitly passed
+          NINJA_PATH="$(which ninja || echo /opt/homebrew/bin/ninja)"
+          export NINJA="$NINJA_PATH"
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
           export CC="$PWD/third_party/llvm-build/Release+Asserts/bin/clang"
           export CXX="$PWD/third_party/llvm-build/Release+Asserts/bin/clang++"
 
