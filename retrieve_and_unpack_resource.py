@@ -360,9 +360,23 @@ def _retrieve_platform_specific(target_cpu: str) -> None:
         _replace_symlink(Path(bindgen_bin), rust_bin_dir / "bindgen")
 
 
-    llvm_bin_dir = SRC_DIR / "third_party" / "llvm-build" / "Release+Asserts" / "bin"
+    llvm_dir = SRC_DIR / "third_party" / "llvm-build" / "Release+Asserts"
+    llvm_bin_dir = llvm_dir / "bin"
+    llvm_lib_dir = llvm_dir / "lib"
     (llvm_bin_dir / "install_name_tool").symlink_to(
         llvm_bin_dir / "llvm-install-name-tool")
+
+    # Replace macOS 15 (Darwin 24) libc++ with native system libc++ to avoid missing _os_sync_wait_on_address
+    for libcxx_file in llvm_lib_dir.glob("libc++*"):
+        if libcxx_file.is_file() or libcxx_file.is_symlink():
+            libcxx_file.unlink()
+    if Path("/usr/lib/libc++.1.dylib").is_file():
+        (llvm_lib_dir / "libc++.1.dylib").symlink_to(Path("/usr/lib/libc++.1.dylib"))
+        (llvm_lib_dir / "libc++.dylib").symlink_to(Path("/usr/lib/libc++.1.dylib"))
+    if Path("/usr/lib/libc++abi.dylib").is_file():
+        (llvm_lib_dir / "libc++abi.dylib").symlink_to(Path("/usr/lib/libc++abi.dylib"))
+        (llvm_lib_dir / "libc++abi.1.dylib").symlink_to(Path("/usr/lib/libc++abi.dylib"))
+
 
     go_binary = shutil.which("go")
     if go_binary is None:

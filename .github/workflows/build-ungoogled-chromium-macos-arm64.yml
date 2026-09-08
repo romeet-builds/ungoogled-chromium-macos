@@ -124,6 +124,15 @@ jobs:
             ln -sf "$BINDGEN_BIN" "$_src_dir/third_party/rust-toolchain/bin/bindgen"
           fi
 
+          # Fix LLVM libc++ on macOS 14 to avoid missing _os_sync_wait_on_address
+          _llvm_lib="$_src_dir/third_party/llvm-build/Release+Asserts/lib"
+          rm -f "$_llvm_lib"/libc++* || true
+          ln -sf /usr/lib/libc++.1.dylib "$_llvm_lib/libc++.1.dylib" || true
+          ln -sf /usr/lib/libc++.1.dylib "$_llvm_lib/libc++.dylib" || true
+          ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.1.dylib" || true
+          ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.dylib" || true
+
+
       - name: Bootstrap GN & Generate Build Graph
         shell: bash
         run: |
