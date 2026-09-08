@@ -6,7 +6,7 @@ on:
       runner:
         description: 'Choose CI Runner Label'
         required: true
-        default: 'bitrise-runner-macOS'
+        default: 'bitrise-runner-macos-ungoogled'
         type: string
   push:
     branches:
@@ -19,7 +19,7 @@ permissions:
 jobs:
   build:
     name: Build Ungoogled Chromium (arm64)
-    runs-on: ${{ inputs.runner || 'bitrise-runner-macOS' }}
+    runs-on: ${{ inputs.runner || 'bitrise-runner-macos-ungoogled' }}
     timeout-minutes: 1440
 
     steps:
