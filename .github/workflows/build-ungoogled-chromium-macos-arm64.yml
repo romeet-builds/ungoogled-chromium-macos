@@ -73,8 +73,11 @@ jobs:
           set -euxo pipefail
           export HOMEBREW_NO_AUTO_UPDATE=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
-          brew install coreutils ninja go gn || true
+          brew install coreutils || true
+          brew install ninja || true
+          brew install go || true
           pip3 install httplib2 PySocks --break-system-packages || pip install httplib2 PySocks || true
+          which ninja && ninja --version
 
       - name: Retrieve Chromium Source
         shell: bash
