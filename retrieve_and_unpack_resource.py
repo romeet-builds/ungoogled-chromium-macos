@@ -355,9 +355,23 @@ def _retrieve_platform_specific(target_cpu: str) -> None:
     rustc_lib_dir.symlink_to(rust_lib_dir)
     (rust_dir / "rustfmt-preview" / "lib").symlink_to(rust_dir / "rustc" / "lib")
 
-    bindgen_bin = shutil.which("bindgen") or os.path.expanduser("~/.cargo/bin/bindgen")
-    if os.path.isfile(bindgen_bin):
-        _replace_symlink(Path(bindgen_bin), rust_bin_dir / "bindgen")
+    bindgen_wrapper = rust_bin_dir / "bindgen"
+    if bindgen_wrapper.is_file() or bindgen_wrapper.is_symlink():
+        bindgen_wrapper.unlink()
+    wrapper_content = """#!/bin/bash
+REAL_BINDGEN="$(which bindgen 2>/dev/null || echo "$HOME/.cargo/bin/bindgen")"
+LLVM_LIB="$(cd "$(dirname "$0")/../../llvm-build/Release+Asserts/lib" 2>/dev/null && pwd)"
+if [ -f "$LLVM_LIB/libclang.dylib" ]; then
+  export LIBCLANG_PATH="$LLVM_LIB"
+elif [ -n "$(xcode-select -p 2>/dev/null)" ] && [ -f "$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib" ]; then
+  export LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
+fi
+export DYLD_LIBRARY_PATH="$LIBCLANG_PATH${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+exec "$REAL_BINDGEN" "$@"
+"""
+    bindgen_wrapper.write_text(wrapper_content)
+    bindgen_wrapper.chmod(0o755)
+
 
 
     llvm_dir = SRC_DIR / "third_party" / "llvm-build" / "Release+Asserts"

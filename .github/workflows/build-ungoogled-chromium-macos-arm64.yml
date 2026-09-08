@@ -117,12 +117,21 @@ jobs:
           mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
           ./retrieve_and_unpack_resource.py -p arm64
 
-          # Ensure bindgen is present in rust-toolchain/bin
-          BINDGEN_BIN="$(which bindgen || echo "$HOME/.cargo/bin/bindgen")"
-          if [ -f "$BINDGEN_BIN" ]; then
-            mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
-            ln -sf "$BINDGEN_BIN" "$_src_dir/third_party/rust-toolchain/bin/bindgen"
-          fi
+          # Ensure robust bindgen wrapper is present in rust-toolchain/bin
+          mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
+          cat << 'EOF' > "$_src_dir/third_party/rust-toolchain/bin/bindgen"
+#!/bin/bash
+REAL_BINDGEN="$(which bindgen 2>/dev/null || echo "$HOME/.cargo/bin/bindgen")"
+LLVM_LIB="$(cd "$(dirname "$0")/../../llvm-build/Release+Asserts/lib" 2>/dev/null && pwd)"
+if [ -f "$LLVM_LIB/libclang.dylib" ]; then
+  export LIBCLANG_PATH="$LLVM_LIB"
+elif [ -n "$(xcode-select -p 2>/dev/null)" ] && [ -f "$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib" ]; then
+  export LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
+fi
+export DYLD_LIBRARY_PATH="$LIBCLANG_PATH${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+exec "$REAL_BINDGEN" "$@"
+EOF
+          chmod +x "$_src_dir/third_party/rust-toolchain/bin/bindgen"
 
           # Fix LLVM libc++ on macOS 14 to avoid missing _os_sync_wait_on_address
           _llvm_lib="$_src_dir/third_party/llvm-build/Release+Asserts/lib"
@@ -131,7 +140,6 @@ jobs:
           ln -sf /usr/lib/libc++.1.dylib "$_llvm_lib/libc++.dylib" || true
           ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.1.dylib" || true
           ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.dylib" || true
-
 
       - name: Bootstrap GN & Generate Build Graph
         shell: bash
@@ -142,6 +150,7 @@ jobs:
           # Ensure ninja and cargo are found on PATH
           export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           export NINJA="$(which ninja || echo /opt/homebrew/bin/ninja)"
+          export LIBCLANG_PATH="$(pwd)/third_party/llvm-build/Release+Asserts/lib"
 
           # Replace -std=c++23 with -std=c++20 for Xcode Apple Clang compatibility
           sed -i '' 's/-std=c++23/-std=c++20/g' tools/gn/build/gen.py 2>/dev/null || sed -i 's/-std=c++23/-std=c++20/g' tools/gn/build/gen.py || true
@@ -157,6 +166,7 @@ jobs:
           cd build/src
 
           export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          export LIBCLANG_PATH="$(pwd)/third_party/llvm-build/Release+Asserts/lib"
           CORES="$(sysctl -n hw.ncpu)"
           echo "Building Chromium with $CORES parallel CPU threads on Bitrise/Depot..."
 
