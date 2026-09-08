@@ -116,22 +116,7 @@ jobs:
           mkdir -p "$_src_dir/third_party/llvm-build/Release+Asserts"
           mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
           ./retrieve_and_unpack_resource.py -p arm64
-
-          # Ensure robust bindgen wrapper is present in rust-toolchain/bin
-          mkdir -p "$_src_dir/third_party/rust-toolchain/bin"
-          cat << 'EOF' > "$_src_dir/third_party/rust-toolchain/bin/bindgen"
-#!/bin/bash
-REAL_BINDGEN="$(which bindgen 2>/dev/null || echo "$HOME/.cargo/bin/bindgen")"
-LLVM_LIB="$(cd "$(dirname "$0")/../../llvm-build/Release+Asserts/lib" 2>/dev/null && pwd)"
-if [ -f "$LLVM_LIB/libclang.dylib" ]; then
-  export LIBCLANG_PATH="$LLVM_LIB"
-elif [ -n "$(xcode-select -p 2>/dev/null)" ] && [ -f "$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang.dylib" ]; then
-  export LIBCLANG_PATH="$(xcode-select -p)/Toolchains/XcodeDefault.xctoolchain/usr/lib"
-fi
-export DYLD_LIBRARY_PATH="$LIBCLANG_PATH${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
-exec "$REAL_BINDGEN" "$@"
-EOF
-          chmod +x "$_src_dir/third_party/rust-toolchain/bin/bindgen"
+          chmod +x "$_src_dir/third_party/rust-toolchain/bin/bindgen" || true
 
           # Fix LLVM libc++ on macOS 14 to avoid missing _os_sync_wait_on_address
           _llvm_lib="$_src_dir/third_party/llvm-build/Release+Asserts/lib"
@@ -140,6 +125,7 @@ EOF
           ln -sf /usr/lib/libc++.1.dylib "$_llvm_lib/libc++.dylib" || true
           ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.1.dylib" || true
           ln -sf /usr/lib/libc++abi.dylib "$_llvm_lib/libc++abi.dylib" || true
+
 
       - name: Bootstrap GN & Generate Build Graph
         shell: bash
