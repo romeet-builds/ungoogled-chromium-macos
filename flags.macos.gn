@@ -20,3 +20,7 @@ use_system_xcode=true
 mac_allow_system_xcode_for_official_builds_for_testing=true
 use_clang_modules=false
 use_unified_system_module=false
+mac_sdk_min="14.0"
+mac_deployment_target="13.0"
+mac_min_system_version="13.0"
+
