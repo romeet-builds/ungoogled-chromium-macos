@@ -115,17 +115,13 @@ jobs:
           set -euxo pipefail
           cd build/src
 
-          mkdir -p out/Default
-          GN_BIN=$(which gn || true)
-          if [ -n "$GN_BIN" ] && [ -f "$GN_BIN" ]; then
-            echo "Using precompiled GN binary from $GN_BIN"
-            cp "$GN_BIN" out/Default/gn
-          else
-            echo "Building GN from source..."
-            export PATH="$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
-            ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
-          fi
+          # Ensure ninja (Homebrew) and LLVM Clang are on PATH
+          export PATH="/opt/homebrew/bin:$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
+          export CC="$PWD/third_party/llvm-build/Release+Asserts/bin/clang"
+          export CXX="$PWD/third_party/llvm-build/Release+Asserts/bin/clang++"
 
+          mkdir -p out/Default
+          ./tools/gn/bootstrap/bootstrap.py --use-custom-libcxx -o out/Default/gn --skip-generate-buildfiles
           ./out/Default/gn gen out/Default --fail-on-unused-args
 
       - name: Build Chromium (arm64)
