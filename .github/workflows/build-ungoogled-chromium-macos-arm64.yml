@@ -71,7 +71,9 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          brew install coreutils ninja go || true
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          export HOMEBREW_NO_INSTALL_CLEANUP=1
+          brew install coreutils ninja go gn || true
           pip3 install httplib2 PySocks --break-system-packages || pip install httplib2 PySocks || true
 
       - name: Retrieve Chromium Source
@@ -113,12 +115,17 @@ jobs:
           set -euxo pipefail
           cd build/src
 
-          # Use Chromium prebuilt LLVM Clang (supports C++23) for bootstrapping GN
-          export PATH="$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
-          export CC="$PWD/third_party/llvm-build/Release+Asserts/bin/clang"
-          export CXX="$PWD/third_party/llvm-build/Release+Asserts/bin/clang++"
+          mkdir -p out/Default
+          GN_BIN=$(which gn || true)
+          if [ -n "$GN_BIN" ] && [ -f "$GN_BIN" ]; then
+            echo "Using precompiled GN binary from $GN_BIN"
+            cp "$GN_BIN" out/Default/gn
+          else
+            echo "Building GN from source..."
+            export PATH="$PWD/third_party/llvm-build/Release+Asserts/bin:$PATH"
+            ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
+          fi
 
-          ./tools/gn/bootstrap/bootstrap.py -o out/Default/gn --skip-generate-buildfiles
           ./out/Default/gn gen out/Default --fail-on-unused-args
 
       - name: Build Chromium (arm64)
