@@ -1,9 +1,10 @@
 --- a/content/browser/renderer_host/clipboard_host_impl_mac.mm
 +++ b/content/browser/renderer_host/clipboard_host_impl_mac.mm
-@@ -12,6 +12,17 @@
+@@ -13,6 +13,20 @@
  #include "content/public/browser/browser_thread.h"
  #import "ui/base/cocoa/find_pasteboard.h"
  
++
 +#if !defined(MAC_OS_VERSION_15_4) || MAC_OS_X_VERSION_MAX_ALLOWED < 150400
 +typedef NS_ENUM(NSInteger, NSPasteboardAccessBehavior) {
 +  NSPasteboardAccessBehaviorDefault = 0,
@@ -19,3 +20,4 @@
 +
  namespace content {
  namespace {
+ 
