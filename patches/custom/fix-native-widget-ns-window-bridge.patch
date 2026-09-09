@@ -1,0 +1,12 @@
+--- a/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
++++ b/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+@@ -116,7 +116,8 @@ bool IsBackgroundEffectView(NSView* view) {
+   }
+ 
+   if (@available(macOS 26, *)) {
+-    if ([view isKindOfClass:[NSGlassEffectView class]]) {
++    Class glass_class = NSClassFromString(@"NSGlassEffectView");
++    if (glass_class && [view isKindOfClass:glass_class]) {
+       return true;
+     }
+   }
