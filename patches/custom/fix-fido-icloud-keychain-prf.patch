@@ -1,0 +1,30 @@
+--- a/device/fido/mac/icloud_keychain.mm
++++ b/device/fido/mac/icloud_keychain.mm
+@@ -6,6 +6,27 @@
+ 
+ #import <AuthenticationServices/AuthenticationServices.h>
+ #import <Foundation/Foundation.h>
++
++#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++@interface ASAuthorizationPublicKeyCredentialPRFRegistrationOutput : NSObject
++@property(readonly, nonatomic) BOOL isSupported;
++@property(readonly, nonatomic, nullable) NSData* first;
++@property(readonly, nonatomic, nullable) NSData* second;
++@end
++
++@interface ASAuthorizationPublicKeyCredentialPRFAssertionOutput : NSObject
++@property(readonly, nonatomic, nullable) NSData* first;
++@property(readonly, nonatomic, nullable) NSData* second;
++@end
++
++@interface ASAuthorizationPlatformPublicKeyCredentialRegistration (MacOS15Compatibility)
++@property(readonly, nonatomic, nullable) ASAuthorizationPublicKeyCredentialPRFRegistrationOutput* prf;
++@end
++
++@interface ASAuthorizationPlatformPublicKeyCredentialAssertion (MacOS15Compatibility)
++@property(readonly, nonatomic, nullable) ASAuthorizationPublicKeyCredentialPRFAssertionOutput* prf;
++@end
++#endif
+ 
+ #include <algorithm>
+ #include <optional>
