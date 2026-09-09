@@ -302,8 +302,19 @@ def _retrieve_generic(target_cpu: str, clone: bool) -> None:
             return
 
         _remove(CLONE_STATE)
-        _run(sys.executable, MAIN_REPO / "utils" / "clone.py", "-p", pgo_profile,
-             "-o", SRC_DIR)
+        import time
+        max_retries = 4
+        for attempt in range(1, max_retries + 1):
+            try:
+                _run(sys.executable, MAIN_REPO / "utils" / "clone.py", "-p", pgo_profile,
+                     "-o", SRC_DIR)
+                break
+            except subprocess.CalledProcessError as err:
+                LOGGER.warning("clone.py attempt %d/%d failed: %s. Retrying...", attempt, max_retries, err)
+                _remove(SRC_DIR)
+                if attempt == max_retries:
+                    raise
+                time.sleep(20)
         _write_clone_state(pgo_profile)
     else:
         _remove(CLONE_STATE)
