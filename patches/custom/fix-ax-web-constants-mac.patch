@@ -1,6 +1,6 @@
 --- a/ui/accessibility/platform/ax_private_webkit_constants_mac.h
 +++ b/ui/accessibility/platform/ax_private_webkit_constants_mac.h
-@@ -7,6 +7,517 @@
+@@ -7,6 +7,523 @@
  
  #include <Availability.h>
  #import <Foundation/Foundation.h>
@@ -30,6 +30,12 @@
 +#endif
 +#ifndef NSAccessibilitySearchDirectionPrevious
 +#define NSAccessibilitySearchDirectionPrevious @"AXSearchDirectionPrevious"
++#endif
++#ifndef NSAccessibilityChildrenInNavigationOrderAttribute
++#define NSAccessibilityChildrenInNavigationOrderAttribute @"AXChildrenInNavigationOrder"
++#endif
++#ifndef NSAccessibilityIndexForChildUIElementInNavigationOrderAttribute
++#define NSAccessibilityIndexForChildUIElementInNavigationOrderAttribute @"AXIndexForChildUIElementInNavigationOrder"
 +#endif
 +
 +#ifndef kAXARIAAtomicAttribute
