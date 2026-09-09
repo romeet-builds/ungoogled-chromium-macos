@@ -28,3 +28,4 @@ custom/fix-crashpad-protected-exceptions.patch
 custom/fix-keyboard-code-conversion-mac.patch
 custom/fix-cursor-utils-macos15.patch
 custom/fix-os-settings-provider-macos15.patch
+custom/fix-blink-graphics-context-canvas.patch
