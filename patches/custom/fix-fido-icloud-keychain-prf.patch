@@ -28,3 +28,38 @@
  
  #include <algorithm>
  #include <optional>
+
+--- a/device/fido/mac/icloud_keychain_sys.mm
++++ b/device/fido/mac/icloud_keychain_sys.mm
+@@ -5,6 +5,31 @@
+ #include "device/fido/mac/icloud_keychain_sys.h"
+ 
+ #import <AuthenticationServices/AuthenticationServices.h>
++
++#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++@interface ASAuthorizationPublicKeyCredentialPRFAssertionInputValues : NSObject
++- (instancetype)initWithSaltInput1:(NSData*)saltInput1
++                        saltInput2:(nullable NSData*)saltInput2;
++@end
++
++@interface ASAuthorizationPublicKeyCredentialPRFRegistrationInput : NSObject
+++ (instancetype)checkForSupport;
++- (instancetype)initWithInputValues:(ASAuthorizationPublicKeyCredentialPRFAssertionInputValues*)inputValues;
++@end
++
++@interface ASAuthorizationPublicKeyCredentialPRFAssertionInput : NSObject
++- (instancetype)initWithInputValues:(nullable ASAuthorizationPublicKeyCredentialPRFAssertionInputValues*)inputValues
++           perCredentialInputValues:(nullable NSDictionary<NSData*, ASAuthorizationPublicKeyCredentialPRFAssertionInputValues*>*)perCredentialInputValues;
++@end
++
++@interface ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest (MacOS15Compatibility)
++@property(nonatomic, strong, nullable) ASAuthorizationPublicKeyCredentialPRFRegistrationInput* prf;
++@end
++
++@interface ASAuthorizationPlatformPublicKeyCredentialAssertionRequest (MacOS15Compatibility)
++@property(nonatomic, strong, nullable) ASAuthorizationPublicKeyCredentialPRFAssertionInput* prf;
++@end
++#endif
+ 
+ #include "base/functional/callback.h"
+ #include "base/memory/scoped_refptr.h"
