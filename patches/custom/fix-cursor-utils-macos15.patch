@@ -1,0 +1,37 @@
+--- a/ui/base/cocoa/cursor_utils.mm
++++ b/ui/base/cocoa/cursor_utils.mm
+@@ -5,6 +5,34 @@
+ #include "ui/base/cocoa/cursor_utils.h"
+ 
+ #import <AppKit/AppKit.h>
++
++#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++typedef NS_ENUM(NSInteger, NSCursorFrameResizePosition) {
++  NSCursorFrameResizePositionTop = 1 << 0,
++  NSCursorFrameResizePositionLeft = 1 << 1,
++  NSCursorFrameResizePositionBottom = 1 << 2,
++  NSCursorFrameResizePositionRight = 1 << 3,
++  NSCursorFrameResizePositionTopLeft = NSCursorFrameResizePositionTop | NSCursorFrameResizePositionLeft,
++  NSCursorFrameResizePositionTopRight = NSCursorFrameResizePositionTop | NSCursorFrameResizePositionRight,
++  NSCursorFrameResizePositionBottomLeft = NSCursorFrameResizePositionBottom | NSCursorFrameResizePositionLeft,
++  NSCursorFrameResizePositionBottomRight = NSCursorFrameResizePositionBottom | NSCursorFrameResizePositionRight,
++};
++
++typedef NS_OPTIONS(NSUInteger, NSCursorFrameResizeDirections) {
++  NSCursorFrameResizeDirectionsInward = 1 << 0,
++  NSCursorFrameResizeDirectionsOutward = 1 << 1,
++  NSCursorFrameResizeDirectionsAll = NSCursorFrameResizeDirectionsInward | NSCursorFrameResizeDirectionsOutward,
++};
++
++@interface NSCursor (macOS15SDKCompatibility)
+++ (NSCursor*)frameResizeCursorFromPosition:(NSCursorFrameResizePosition)position
++                              inDirections:(NSCursorFrameResizeDirections)directions;
++@property(class, readonly, strong) NSCursor* columnResizeCursor;
++@property(class, readonly, strong) NSCursor* rowResizeCursor;
++@property(class, readonly, strong) NSCursor* zoomInCursor;
++@property(class, readonly, strong) NSCursor* zoomOutCursor;
++@end
++#endif
+ #include <Foundation/Foundation.h>
+ #include <stdint.h>
+ 
