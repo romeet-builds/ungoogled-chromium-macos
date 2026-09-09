@@ -1,0 +1,104 @@
+--- a/third_party/crashpad/crashpad/util/mach/exc_server_variants.cc
++++ b/third_party/crashpad/crashpad/util/mach/exc_server_variants.cc
+@@ -114,6 +114,7 @@ struct MachExcTraits {
+   using ExceptionRaiseStateRequest = __Request__mach_exception_raise_state_t;
+   using ExceptionRaiseStateIdentityRequest =
+       __Request__mach_exception_raise_state_identity_t;
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+   using ExceptionRaiseIdentityProtectedRequest =
+       __Request__mach_exception_raise_identity_protected_t;
+   using ExceptionRaiseStateIdentityProtectedRequest =
+@@ -128,6 +129,7 @@ struct MachExcTraits {
+   using ExceptionRaiseIdentityProtectedReply =
+       __Reply__mach_exception_raise_identity_protected_t;
+   using ExceptionRaiseStateIdentityProtectedReply =
+       __Reply__mach_exception_raise_state_identity_protected_t;
++#endif
+ 
+   // The MIG-generated __MIG_check__Request__*() functions are not declared as
+   // accepting const data, but they could have been because they in fact do not
+@@ -154,6 +156,7 @@ struct MachExcTraits {
+         const_cast<ExceptionRaiseStateIdentityRequest**>(in_request_1));
+   }
+ 
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+   static kern_return_t MIGCheckRequestExceptionRaiseIdentityProtected(
+       const ExceptionRaiseIdentityProtectedRequest* in_request) {
+     return __MIG_check__Request__mach_exception_raise_identity_protected_t(
+@@ -172,12 +175,15 @@ struct MachExcTraits {
+             const_cast<ExceptionRaiseStateIdentityProtectedRequest**>(
+                 in_request_1));
+   }
++#endif
+ 
+   // There are no predefined constants for these.
+   static const mach_msg_id_t kMachMessageIDExceptionRaise = 2405;
+   static const mach_msg_id_t kMachMessageIDExceptionRaiseState = 2406;
+   static const mach_msg_id_t kMachMessageIDExceptionRaiseStateIdentity = 2407;
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+   static const mach_msg_id_t kMachMessageIDExceptionRaiseIdentityProtected =
+       2408;
+   static const mach_msg_id_t
+       kMachMessageIDExceptionRaiseStateIdentityProtected = 2410;
++#endif
+ 
+   static std::set<mach_msg_id_t> RequestIDs() {
+     return {
+         kMachMessageIDExceptionRaise,
+         kMachMessageIDExceptionRaiseState,
+         kMachMessageIDExceptionRaiseStateIdentity,
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+         kMachMessageIDExceptionRaiseIdentityProtected,
+         kMachMessageIDExceptionRaiseStateIdentityProtected,
++#endif
+     };
+   }
+ 
+@@ -274,6 +280,7 @@ class ExcServer : public MachMessageServer::Interface {
+         const mach_msg_trailer_t* trailer,
+         bool* destroy_request) = 0;
+ 
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+     //! \brief Handles exceptions raised by
+     //!     `mach_exception_raise_identity_protected()`.
+     //!
+@@ -319,6 +326,7 @@ class ExcServer : public MachMessageServer::Interface {
+         mach_msg_type_number_t* new_state_count,
+         const mach_msg_trailer_t* trailer,
+         bool* destroy_request) = 0;
++#endif
+ 
+    protected:
+     ~Interface() {}
+@@ -487,6 +495,7 @@ bool ExcServer<Traits>::MachMessageServerFunction(
+   }
+ 
+   if constexpr (std::is_same_v<Traits, MachExcTraits>) {
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+     switch (in_header->msgh_id) {
+       case Traits::kMachMessageIDExceptionRaiseIdentityProtected: {
+         // mach_exception_raise_identity_protected(),
+@@ -691,6 +700,7 @@ bool ExcServer<Traits>::MachMessageServerFunction(
+         return true;
+       }
+     }
++#endif
+   }
+ 
+   SetMIGReplyError(out_header, MIG_BAD_ID);
+@@ -846,6 +856,7 @@ class SimplifiedExcServer final : public ExcServer<Traits>,
+         destroy_request);
+   }
+ 
++#if defined(EXCEPTION_STATE_IDENTITY_PROTECTED)
+   kern_return_t CatchExceptionRaiseIdentityProtected(
+       exception_handler_t exception_port,
+       thread_t thread,
+@@ -904,6 +915,7 @@ class SimplifiedExcServer final : public ExcServer<Traits>,
+         trailer,
+         destroy_request);
+   }
++#endif
+ 
+  private:
+   Interface* interface_;  // weak
