@@ -32,3 +32,4 @@ custom/fix-blink-graphics-context-canvas.patch
 custom/fix-native-widget-ns-window-bridge.patch
 custom/fix-bridged-content-view-contextmenukeydown.patch
 custom/fix-fido-icloud-keychain-prf.patch
+custom/fix-clipboard-host-mac.patch
