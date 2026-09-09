@@ -1,15 +1,15 @@
 --- a/components/remote_cocoa/app_shim/bridged_content_view.mm
 +++ b/components/remote_cocoa/app_shim/bridged_content_view.mm
-@@ -839,6 +839,12 @@
-   return YES;
- }
- 
+@@ -33,6 +33,12 @@
+ #include "ui/gfx/geometry/rect.h"
+ #import "ui/gfx/mac/coordinate_conversion.h"
+ #include "ui/gfx/scoped_ns_graphics_context_save_gstate_mac.h"
++
 +#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
 +@interface NSResponder (MacOS15Compatibility)
 +- (void)contextMenuKeyDown:(NSEvent*)event;
 +@end
 +#endif
-+
- - (void)contextMenuKeyDown:(NSEvent*)event {
-   base::apple::OwnedNSEvent owned_event(event);
-   ui::KeyEvent original_event(owned_event);
+ 
+ namespace {
+ 
