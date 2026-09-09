@@ -1,0 +1,18 @@
+--- a/ui/native_theme/os_settings_provider_mac.mm
++++ b/ui/native_theme/os_settings_provider_mac.mm
+@@ -8,6 +8,15 @@
+ #import <Accessibility/Accessibility.h>
+ #import <Cocoa/Cocoa.h>
+ 
++#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++extern "C" {
++__attribute__((weak_import)) extern NSNotificationName const
++    AXPrefersNonBlinkingTextInsertionIndicatorDidChangeNotification;
++__attribute__((weak_import)) extern BOOL
++    AXPrefersNonBlinkingTextInsertionIndicator(void);
++}
++#endif
++
+ #include <optional>
+ 
+ #include "ui/base/cocoa/defaults_utils.h"
