@@ -1,12 +1,37 @@
 --- a/ui/accessibility/platform/ax_private_webkit_constants_mac.h
 +++ b/ui/accessibility/platform/ax_private_webkit_constants_mac.h
-@@ -7,6 +7,492 @@
+@@ -7,6 +7,517 @@
  
  #include <Availability.h>
  #import <Foundation/Foundation.h>
 +#include <CoreFoundation/CoreFoundation.h>
 +
 +// Fallback web accessibility constants for macOS 14 SDK (Xcode 15.4)
++#ifndef NSAccessibilitySearchIdentifiersKey
++#define NSAccessibilitySearchIdentifiersKey @"AXSearchIdentifiers"
++#endif
++#ifndef NSAccessibilitySearchCurrentElementKey
++#define NSAccessibilitySearchCurrentElementKey @"AXSearchCurrentElement"
++#endif
++#ifndef NSAccessibilitySearchCurrentRangeKey
++#define NSAccessibilitySearchCurrentRangeKey @"AXSearchCurrentRange"
++#endif
++#ifndef NSAccessibilitySearchDirectionKey
++#define NSAccessibilitySearchDirectionKey @"AXSearchDirection"
++#endif
++#ifndef NSAccessibilitySearchResultsLimitKey
++#define NSAccessibilitySearchResultsLimitKey @"AXSearchResultsLimit"
++#endif
++#ifndef NSAccessibilitySearchTextKey
++#define NSAccessibilitySearchTextKey @"AXSearchText"
++#endif
++#ifndef NSAccessibilitySearchDirectionNext
++#define NSAccessibilitySearchDirectionNext @"AXSearchDirectionNext"
++#endif
++#ifndef NSAccessibilitySearchDirectionPrevious
++#define NSAccessibilitySearchDirectionPrevious @"AXSearchDirectionPrevious"
++#endif
++
 +#ifndef kAXARIAAtomicAttribute
 +#define kAXARIAAtomicAttribute CFSTR("AXARIAAtomic")
 +#endif
