@@ -4,7 +4,7 @@
  #import <Accessibility/Accessibility.h>
  #import <Cocoa/Cocoa.h>
  
-+#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++#if (defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 150000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 150000)
 +extern "C" {
 +__attribute__((weak_import)) extern NSNotificationName const
 +    AXPrefersNonBlinkingTextInsertionIndicatorDidChangeNotification;
