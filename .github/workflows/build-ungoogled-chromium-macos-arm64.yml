@@ -22,6 +22,11 @@ jobs:
     runs-on: ${{ inputs.runner || 'bitrise-runner-local-system' }}
     timeout-minutes: 1440
 
+    env:
+      SCCACHE_DIR: /Users/vagrant/.cache/sccache
+      SCCACHE_CACHE_SIZE: 7G
+      SCCACHE_IDLE_TIMEOUT: "0"
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -68,27 +73,31 @@ jobs:
           chmod +x *.sh
           ./github_prepare_xcode.sh
 
-      - name: Install Build Dependencies
+      - name: Install Build Dependencies & sccache
         shell: bash
         run: |
           set -euxo pipefail
           export HOMEBREW_NO_AUTO_UPDATE=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
-          brew install coreutils || true
-          brew install ninja || true
-          brew install go || true
-          brew install rust || true
+          brew install coreutils ninja go rust sccache || true
           export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           cargo install bindgen-cli || true
           which bindgen || true
+          which sccache && sccache --version || true
           
-          # Install Python dependencies across all available Python runtimes
           for py in python3 python $(which -a python3 2>/dev/null) $(which -a python 2>/dev/null) /Users/vagrant/.asdf/shims/python3 /Users/vagrant/.asdf/installs/python/*/bin/python3; do
             if [ -x "$py" ] || command -v "$py" >/dev/null 2>&1; then
               "$py" -m pip install --break-system-packages httplib2 PySocks urllib3 setuptools wheel || true
             fi
           done
-          which ninja && ninja --version
+
+      - name: Restore Compiler Cache (GitHub Actions Cache)
+        uses: actions/cache@v4
+        with:
+          path: /Users/vagrant/.cache/sccache
+          key: sccache-macos-arm64-${{ github.sha }}
+          restore-keys: |
+            sccache-macos-arm64-
 
       - name: Retrieve Chromium Source
         shell: bash
@@ -103,7 +112,7 @@ jobs:
           if [ ! -d "build/src/chrome" ]; then
             ./retrieve_and_unpack_resource.py -g arm64
           else
-            echo "Incremental build: Reusing existing Chromium source tree at build/src"
+            echo "Reusing existing Chromium source tree at build/src"
           fi
 
       - name: Configure Ungoogled Chromium Patches & Substitutions
@@ -122,12 +131,13 @@ jobs:
           # 2. Apply patches (including custom Arc 2x3 grid)
           python3 "$_main_repo/utils/patches.py" apply "$_src_dir" "$_main_repo/patches" "./patches"
 
-          # 3. Domain substitution (replace Google URLs with no-op)
+          # 3. Domain substitution
           python3 "$_main_repo/utils/domain_substitution.py" apply -r "$_main_repo/domain_regex.list" -f "$_main_repo/domain_substitution.list" "$_src_dir" || true
 
-          # 4. Generate gn build flags
+          # 4. Generate gn build flags with sccache wrapper
           cat "$_main_repo/flags.gn" "./flags.macos.gn" > "$_src_dir/out/Default/args.gn"
           echo 'target_cpu = "arm64"' >> "$_src_dir/out/Default/args.gn"
+          echo 'cc_wrapper = "sccache"' >> "$_src_dir/out/Default/args.gn"
 
           # 5. Retrieve platform-specific toolchains
           mkdir -p "$_src_dir/third_party/llvm-build/Release+Asserts"
@@ -163,7 +173,7 @@ jobs:
           fi
           ./out/Default/gn gen out/Default --fail-on-unused-args
 
-      - name: Build Chromium (arm64)
+      - name: Build Chromium (arm64) with sccache
         shell: bash
         run: |
           set -euxo pipefail
@@ -171,10 +181,19 @@ jobs:
 
           export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           export LIBCLANG_PATH="$(pwd)/third_party/llvm-build/Release+Asserts/lib"
+          
+          mkdir -p "$SCCACHE_DIR"
+          sccache --start-server || true
+          sccache --zero-stats || true
+
           CORES="$(sysctl -n hw.ncpu)"
-          echo "Incremental build with $CORES CPU threads..."
+          echo "Compiling Chromium with sccache across $CORES threads..."
 
           ninja -C out/Default -j"$CORES" chrome chromedriver
+
+          echo "=== sccache Cache Stats ==="
+          sccache --show-stats || true
+          sccache --stop-server || true
 
       - name: Validate output binary
         shell: bash
@@ -218,4 +237,5 @@ jobs:
             --notes "### Native Ungoogled Chromium build with Arc 2x3 Pinned Grid
           - **Architecture**: Apple Silicon (arm64 native)
           - **Feature**: Arc-style 2x3 pinned tab grid in native vertical tab strip
-          - **Binary Verified**: Mach-O 64-bit arm64 app bundle" || true
+          - **Binary Verified**: Mach-O 64-bit arm64 app bundle
+          - **Compiler Cache**: Integrated with sccache (7GB quota)" || true
