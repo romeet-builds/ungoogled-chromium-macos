@@ -5,7 +5,7 @@
  #import <AuthenticationServices/AuthenticationServices.h>
  #import <Foundation/Foundation.h>
 +
-+#if (defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 150000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 150000)
++#if !defined(__MAC_15_0) && !defined(MAC_OS_X_VERSION_15_0)
 +@interface ASAuthorizationPublicKeyCredentialPRFRegistrationOutput : NSObject
 +@property(readonly, nonatomic) BOOL isSupported;
 +@property(readonly, nonatomic, nullable) NSData* first;
@@ -36,7 +36,7 @@
  
  #import <AuthenticationServices/AuthenticationServices.h>
 +
-+#if (defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 150000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 150000)
++#if !defined(__MAC_15_0) && !defined(MAC_OS_X_VERSION_15_0)
 +@interface ASAuthorizationPublicKeyCredentialPRFAssertionInputValues : NSObject
 +- (instancetype)initWithSaltInput1:(NSData*)saltInput1
 +                        saltInput2:(nullable NSData*)saltInput2;

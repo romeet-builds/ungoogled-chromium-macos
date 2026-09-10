@@ -4,7 +4,7 @@
  #include "content/public/browser/browser_thread.h"
  #import "ui/base/cocoa/find_pasteboard.h"
  
-+#if (defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 150400) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 150400)
++#if !defined(__MAC_15_4) && !defined(MAC_OS_X_VERSION_15_4)
 +typedef NS_ENUM(NSInteger, NSPasteboardAccessBehavior) {
 +  NSPasteboardAccessBehaviorDefault = 0,
 +  NSPasteboardAccessBehaviorAsk = 1,
