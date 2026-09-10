@@ -1,0 +1,22 @@
+--- a/content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
++++ b/content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
+@@ -7,6 +7,19 @@
+ #include <AppKit/AppKit.h>
+ #include <Carbon/Carbon.h>  // for <HIToolbox/Events.h>
+ 
++#if !defined(kVK_ContextualMenu)
++enum {
++  kVK_ContextualMenu = 0x6E
++};
++#endif
++
++#if !defined(MAC_OS_VERSION_15_0) || MAC_OS_X_VERSION_MAX_ALLOWED < 150000
++@interface NSResponder (MacOS15Compatibility)
++- (void)contextMenuKeyDown:(NSEvent*)event;
++@end
++#endif
++
++
+ #include <algorithm>
+ #include <limits>
+ #include <optional>
