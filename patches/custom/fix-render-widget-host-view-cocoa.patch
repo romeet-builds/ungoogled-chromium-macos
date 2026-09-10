@@ -1,22 +1,24 @@
 --- a/content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
 +++ b/content/app_shim_remote_cocoa/render_widget_host_view_cocoa.mm
-@@ -8,6 +8,12 @@
- #include <Carbon/Carbon.h>  // for <HIToolbox/Events.h>
+@@ -6,6 +6,12 @@
  
+ #include <AppKit/AppKit.h>
+ #include <Carbon/Carbon.h>  // for <HIToolbox/Events.h>
++
 +#if (defined(MAC_OS_X_VERSION_MAX_ALLOWED) && MAC_OS_X_VERSION_MAX_ALLOWED < 150000) || (defined(__MAC_OS_X_VERSION_MAX_ALLOWED) && __MAC_OS_X_VERSION_MAX_ALLOWED < 150000)
 +@interface NSResponder (MacOS15Compatibility)
 +- (void)contextMenuKeyDown:(NSEvent*)event;
 +@end
 +#endif
-+
+ 
  #include <algorithm>
  #include <limits>
 @@ -148,7 +154,7 @@
-                          characters:@""
-         charactersIgnoringModifiers:@""
-                           isARepeat:source_event.isARepeat
--                            keyCode:kVK_ContextualMenu];
-+                            keyCode:0x6E];
+                         characters:@""
+        charactersIgnoringModifiers:@""
+                          isARepeat:source_event.isARepeat
+-                           keyCode:kVK_ContextualMenu];
++                           keyCode:0x6E];
  }
  
  // Extract underline information from an attributed string. Inspired by
