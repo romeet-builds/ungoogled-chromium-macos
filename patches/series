@@ -35,3 +35,4 @@ custom/fix-fido-icloud-keychain-prf.patch
 custom/fix-clipboard-host-mac.patch
 custom/fix-render-widget-host-view-cocoa.patch
 custom/fix-native-screen-capture-picker-mac.patch
+custom/fix-system-media-capture-permissions-mac.patch

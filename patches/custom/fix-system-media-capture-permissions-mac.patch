@@ -1,0 +1,20 @@
+--- a/chrome/browser/permissions/system/system_media_capture_permissions_mac.mm
++++ b/chrome/browser/permissions/system/system_media_capture_permissions_mac.mm
+@@ -8,6 +8,19 @@
+ #import <Cocoa/Cocoa.h>
+ 
++#if !defined(MAC_OS_VERSION_15_4) || +    MAC_OS_X_VERSION_MAX_ALLOWED < 150400
++typedef NS_ENUM(NSInteger, NSPasteboardAccessBehavior) {
++  NSPasteboardAccessBehaviorDefault = 0,
++  NSPasteboardAccessBehaviorAlwaysAllow = 1,
++  NSPasteboardAccessBehaviorAsk = 2,
++  NSPasteboardAccessBehaviorAlwaysDeny = 3,
++};
++
++@interface NSPasteboard (MacOS15_4Compatibility)
++@property(readonly) NSPasteboardAccessBehavior accessBehavior;
++@end
++#endif
++
+ #include "base/apple/foundation_util.h"
+ #include "base/apple/scoped_cftyperef.h"
