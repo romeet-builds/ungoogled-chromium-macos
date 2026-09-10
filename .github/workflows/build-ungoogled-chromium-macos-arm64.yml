@@ -80,13 +80,25 @@ jobs:
           export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
           cargo install bindgen-cli || true
           which bindgen || true
-          pip3 install httplib2 PySocks --break-system-packages || pip install httplib2 PySocks || true
+          
+          # Install Python dependencies across all available Python runtimes (asdf, system, Homebrew)
+          for py in python3 python $(which -a python3 2>/dev/null) $(which -a python 2>/dev/null) /Users/vagrant/.asdf/shims/python3 /Users/vagrant/.asdf/installs/python/*/bin/python3; do
+            if [ -x "$py" ] || command -v "$py" >/dev/null 2>&1; then
+              "$py" -m pip install --break-system-packages httplib2 PySocks urllib3 setuptools wheel || true
+            fi
+          done
           which ninja && ninja --version
 
       - name: Retrieve Chromium Source
         shell: bash
         run: |
           set -euxo pipefail
+          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          for py in python3 python $(which -a python3 2>/dev/null) $(which -a python 2>/dev/null) /Users/vagrant/.asdf/shims/python3 /Users/vagrant/.asdf/installs/python/*/bin/python3; do
+            if [ -x "$py" ] || command -v "$py" >/dev/null 2>&1; then
+              "$py" -m pip install --break-system-packages httplib2 PySocks urllib3 setuptools wheel || true
+            fi
+          done
           ./retrieve_and_unpack_resource.py -g arm64
 
       - name: Configure Ungoogled Chromium Patches & Substitutions
