@@ -1,0 +1,46 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'GitHub Actions Run ID to publish'
+        required: true
+        default: '34478719767'
+      tag_name:
+        description: 'Release Tag'
+        required: true
+        default: '134.0.6998.35-1.1-arm64'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download Artifact from Run
+        uses: actions/download-artifact@v4
+        with:
+          name: ungoogled-chromium-macos-arm64
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ./release-files
+
+      - name: List Files
+        run: ls -la ./release-files
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.event.inputs.tag_name }}" ./release-files/* \
+            --title "Ungoogled Chromium macOS arm64 (${{ github.event.inputs.tag_name }})" \
+            --notes "### Native Ungoogled Chromium build for Apple Silicon (macOS arm64)
+- **Architecture**: Apple Silicon (arm64 native)
+- **Features**: Arc-style 2x3 pinned tab grid sidebar layout + full Ungoogled privacy patches
+- **Verified**: Mach-O 64-bit arm64 executable signed app bundle
+- **Run ID**: ${{ github.event.inputs.run_id }}"
