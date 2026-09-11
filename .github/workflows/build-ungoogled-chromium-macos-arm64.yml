@@ -79,11 +79,13 @@ jobs:
           set -euxo pipefail
           export HOMEBREW_NO_AUTO_UPDATE=1
           export HOMEBREW_NO_INSTALL_CLEANUP=1
-          brew install coreutils ninja go rust sccache || true
-          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          brew install coreutils ninja go rust sccache gpatch || true
+          export PATH="/opt/homebrew/opt/gpatch/libexec/gnubin:/opt/homebrew/bin:$HOME/.cargo/bin:/usr/local/bin:$PATH"
+          export PATCH_BIN="$(which gpatch || which patch)"
           cargo install bindgen-cli || true
           which bindgen || true
           which sccache && sccache --version || true
+          which gpatch || true
           
           for py in python3 python $(which -a python3 2>/dev/null) $(which -a python 2>/dev/null) /Users/vagrant/.asdf/shims/python3 /Users/vagrant/.asdf/installs/python/*/bin/python3; do
             if [ -x "$py" ] || command -v "$py" >/dev/null 2>&1; then
@@ -103,7 +105,8 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          export PATH="/opt/homebrew/opt/gpatch/libexec/gnubin:/opt/homebrew/bin:$HOME/.cargo/bin:/usr/local/bin:$PATH"
+          export PATCH_BIN="$(which gpatch || which patch)"
           for py in python3 python $(which -a python3 2>/dev/null) $(which -a python 2>/dev/null) /Users/vagrant/.asdf/shims/python3 /Users/vagrant/.asdf/installs/python/*/bin/python3; do
             if [ -x "$py" ] || command -v "$py" >/dev/null 2>&1; then
               "$py" -m pip install --break-system-packages httplib2 PySocks urllib3 setuptools wheel || true
@@ -119,7 +122,8 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          export PATH="$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+          export PATH="/opt/homebrew/opt/gpatch/libexec/gnubin:/opt/homebrew/bin:$HOME/.cargo/bin:/usr/local/bin:$PATH"
+          export PATCH_BIN="$(which gpatch || which patch)"
           _src_dir="build/src"
           _main_repo="ungoogled-chromium"
 
