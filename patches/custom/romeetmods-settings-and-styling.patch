@@ -1,6 +1,7 @@
 --- a/chrome/browser/ui/views/tabs/tab.cc
 +++ b/chrome/browser/ui/views/tabs/tab.cc
-@@ -1,4 +1,15 @@
+@@ -761,6 +761,17 @@
+ }
  
  void Tab::OnPaint(gfx::Canvas* canvas) {
 +  if (GetColorProvider()) {
@@ -16,3 +17,4 @@
 +  }
    tab_style_views()->PaintTab(canvas);
  }
+ 
