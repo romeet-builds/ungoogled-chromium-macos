@@ -1,0 +1,29 @@
+--- a/chrome/browser/ui/views/tabs/tab_style_views.cc	2026-09-10 22:56:14
++++ b/chrome/browser/ui/views/tabs/tab_style_views.cc	2026-09-10 22:56:14
+@@ -840,6 +840,18 @@
+   SkColor background_color = GetBackgroundColor(
+       state, is_active, is_hovered, is_selected, has_custom_theme, color_provider);
+ 
++  // RomeetMods: Custom styling for vertical unpinned tabs
++  if (tabs::IsVerticalTabsExpandOnHoverFeatureEnabled() || tabs::CanShowVerticalTabs()) {
++    if (is_active || is_selected) {
++      // Active tab: Accent color fill
++      background_color = color_provider->GetColor(ui::kColorSysPrimary);
++    } else {
++      // Inactive tab: Borderless greyish background
++      background_color = color_provider->IsDarkMode() ? SkColorSetARGB(22, 255, 255, 255)
++                                                      : SkColorSetARGB(18, 0, 0, 0);
++    }
++  }
++
+   flags.setColor(background_color);
+   canvas->DrawPath(path, flags);
+ }
+--- a/chrome/common/pref_names.h	2026-09-10 22:56:14
++++ b/chrome/common/pref_names.h	2026-09-10 22:56:14
+@@ -1200,6 +1200,10 @@
+ inline constexpr char kVerticalTabsEnabled[] = "vertical_tabs.enabled";
++inline constexpr char kRomeetModsPinnedGridColumns[] = "romeetmods.pinned_grid_columns";
++inline constexpr char kRomeetModsPinnedTileWidth[] = "romeetmods.pinned_tile_width";
++inline constexpr char kRomeetModsPinnedTileHeight[] = "romeetmods.pinned_tile_height";
++inline constexpr char kRomeetModsSidebarWidth[] = "romeetmods.sidebar_width";
