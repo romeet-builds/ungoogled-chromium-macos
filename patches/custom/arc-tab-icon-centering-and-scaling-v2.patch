@@ -1,15 +1,15 @@
 --- a/chrome/browser/ui/views/tabs/tab.cc
 +++ b/chrome/browser/ui/views/tabs/tab.cc
-@@ -348,6 +348,12 @@
+@@ -390,6 +390,12 @@
      // Add space for insets outside the favicon bounds.
      favicon_bounds.Inset(-icon_->GetInsets());
      favicon_bounds.set_size(icon_->GetPreferredSize());
 +
 +    if (data().pinned) {
 +      favicon_bounds.set_size(gfx::Size(24, 24));
++      favicon_bounds.set_x(Center(width(), 24));
++      favicon_bounds.set_y(Center(height(), 24));
 +    }
-+
-+    favicon_bounds.set_y(contents_rect.y() + Center(contents_rect.height(), favicon_bounds.height()));
    }
    icon_->SetBoundsRect(favicon_bounds);
    icon_->SetVisible(showing_icon_);

@@ -25,7 +25,36 @@
    }
  
    if (fill_id.has_value()) {
-@@ -1170,11 +1184,8 @@
+@@ -727,6 +741,11 @@
+     const gfx::Size preferred_size = config.view->GetPreferredSize();
+     preferred_width = preferred_size.width();
+     preferred_height = preferred_size.height();
++
++    if (center && config.view == icon_) {
++      preferred_width = 24;
++      preferred_height = 24;
++    }
+   }
+ 
+   // Some icons have larger sizes to account for decoration. Make a distinction
+@@ -821,12 +840,15 @@
+   layouts.host_size = gfx::Size(width, height);
+ 
+   gfx::Rect bounds_remaining = gfx::Rect(0, 0, width, height);
+-  bounds_remaining.Inset(gfx::Insets::VH(0, kHorizontalInset));
+ 
+   // If the tab is collapsed but animating with a wider width then we shouldn't
+   // center the contents.
+   const bool is_centered = (pinned_ || collapsed_) && !IsInExpandOnHover(width);
+ 
++  if (!is_centered) {
++    bounds_remaining.Inset(gfx::Insets::VH(0, kHorizontalInset));
++  }
++
+   int placed_children = 0;
+   for (const auto& child : tab_children_configs_) {
+     const bool can_render_child =
+@@ -1111,11 +1133,8 @@
        SetBorder(views::CreateEmptyBorder(gfx::Insets(GetLayoutConstant(
            LayoutConstant::kVerticalTabPinnedBorderThickness))));
      } else {
