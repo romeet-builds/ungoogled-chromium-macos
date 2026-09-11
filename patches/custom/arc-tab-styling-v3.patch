@@ -1,6 +1,6 @@
 --- a/chrome/browser/ui/views/tabs/common/tab_view.cc
 +++ b/chrome/browser/ui/views/tabs/common/tab_view.cc
-@@ -593,8 +593,22 @@
+@@ -593,8 +593,25 @@
                                      hovered)) {
      cc::PaintFlags flags;
      flags.setAntiAlias(true);
@@ -8,24 +8,27 @@
 -    canvas->DrawRect(GetContentsBounds(), flags);
 +
 +    if (pinned_) {
-+      if (selection_state == TabStyle::TabSelectionState::kActive || hovered) {
++      if (selection_state == TabStyle::TabSelectionState::kActive) {
 +        SkColor accent = GetColorProvider()->GetColor(ui::kColorSysPrimary);
-+        int alpha = (selection_state == TabStyle::TabSelectionState::kActive) ? 0x44 : 0x22;
-+        flags.setColor(SkColorSetA(accent, alpha));
++        flags.setColor(SkColorSetA(accent, 0x44));
++      } else if (hovered) {
++        SkColor accent = GetColorProvider()->GetColor(ui::kColorSysPrimary);
++        flags.setColor(SkColorSetA(accent, 0x22));
 +      } else {
-+        flags.setColor(SK_ColorTRANSPARENT);
++        const bool is_dark = color_utils::IsDark(GetColorProvider()->GetColor(ui::kColorFrameActive));
++        flags.setColor(is_dark ? SkColorSetA(SK_ColorWHITE, 0x0F) : SkColorSetA(SK_ColorBLACK, 0x0A));
 +      }
 +    } else {
 +      flags.setColor(GetCurrentTabBackgroundColor(selection_state));
 +    }
 +
 +    if (flags.getColor() != SK_ColorTRANSPARENT) {
-+      canvas->DrawRoundRect(gfx::RectF(GetContentsBounds()), 8.0f, flags);
++      canvas->DrawRoundRect(gfx::RectF(GetContentsBounds()), 10.0f, flags);
 +    }
    }
  
    if (fill_id.has_value()) {
-@@ -727,6 +741,11 @@
+@@ -727,6 +744,11 @@
      const gfx::Size preferred_size = config.view->GetPreferredSize();
      preferred_width = preferred_size.width();
      preferred_height = preferred_size.height();
@@ -37,7 +40,7 @@
    }
  
    // Some icons have larger sizes to account for decoration. Make a distinction
-@@ -811,22 +830,25 @@
+@@ -811,22 +833,25 @@
      width = size_bounds.width().value_or(
          VerticalTabStripRegionView::kUncollapsedMaxWidth);
    }
@@ -66,7 +69,7 @@
    int placed_children = 0;
    for (const auto& child : tab_children_configs_) {
      const bool can_render_child =
-@@ -1111,11 +1133,8 @@
+@@ -1111,11 +1136,8 @@
        SetBorder(views::CreateEmptyBorder(gfx::Insets(GetLayoutConstant(
            LayoutConstant::kVerticalTabPinnedBorderThickness))));
      } else {

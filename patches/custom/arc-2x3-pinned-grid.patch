@@ -6,7 +6,7 @@
  
 -    // When we are in collapsed state, only one child should be shown per row.
 -    // During collapse animation and other cases, fit as many as possible.
-+    constexpr int kArcGridColumns = 3;
++    constexpr int kArcGridColumns = 4;
      children_on_row =
          tabs::IsVerticalTabsExpandOnHoverFeatureEnabled() &&
                  collapse_state ==

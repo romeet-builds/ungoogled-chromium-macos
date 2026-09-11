@@ -1,0 +1,44 @@
+--- a/chrome/browser/ui/views/frame/browser_view.cc
++++ b/chrome/browser/ui/views/frame/browser_view.cc
+@@ -1383,35 +1383,19 @@
+           Browser::WindowFeature::kFeatureTabStrip)) {
+     return false;
+   }
+-
+-  // Return false if the tabstrip has not yet been created (by InitViews()),
+-  // since callers may otherwise try to access it.
+-  // Under the TabStripUnification feature, we only initialize the tab strip
+-  // region view that is active (horizontal or vertical). When the feature is
+-  // disabled, the horizontal tab strip is created unconditionally.
+-  if (base::FeatureList::IsEnabled(tabs::kTabStripUnification)) {
+-    const auto* controller =
+-        tabs::VerticalTabStripStateController::From(browser_);
+-    const bool displays_vertical_tabs =
+-        controller && controller->ShouldDisplayVerticalTabs() &&
+-        browser_->is_type_normal();
+ 
+-    if (displays_vertical_tabs) {
+-      return vertical_tab_strip_region_view_ &&
+-             vertical_tab_strip_region_view_->GetTabStripView() != nullptr;
+-    }
+-
+-    return horizontal_tab_strip_region_view_ &&
+-           horizontal_tab_strip_region_view_->GetTabStripView() != nullptr;
++  // RomeetMods / Mod: When vertical tabs are active, hide the horizontal tab strip.
++  if (ShouldDrawVerticalTabStrip()) {
++    return false;
+   }
+ 
+-  return horizontal_tab_strip_region_view_->GetTabStripView() != nullptr;
++  return horizontal_tab_strip_region_view_ &&
++         horizontal_tab_strip_region_view_->GetTabStripView() != nullptr;
+ }
+ 
+ bool BrowserView::ShouldDrawVerticalTabStrip() const {
+   auto* controller = tabs::VerticalTabStripStateController::From(browser_);
+-  return ShouldDrawTabStrip() && controller &&
+-         controller->ShouldDisplayVerticalTabs() && browser_->is_type_normal();
++  return controller && controller->ShouldDisplayVerticalTabs() && browser_->is_type_normal();
+ }
+ 
+ bool BrowserView::ShouldDrawWebAppFrameToolbar() const {
