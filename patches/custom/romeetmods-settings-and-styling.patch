@@ -1,51 +1,21 @@
---- a/chrome/browser/ui/views/tabs/tab_style_views.cc	2026-09-11 06:40:40
-+++ b/chrome/browser/ui/views/tabs/tab_style_views.cc	2026-09-11 06:40:40
-@@ -823,6 +823,8 @@
- bool TabStyleViewsImpl::ShouldPaintTabBackgroundColor(
-     TabStyle::TabSelectionState selection_state,
-     bool has_custom_background) const {
-+  // RomeetMods: Always paint tab background for vertical styling
-+  return true;
-   // In the active case, always paint the tab background. The fill image may be
-   // transparent.
-   if (selection_state == TabStyle::TabSelectionState::kActive) {
-@@ -861,6 +863,15 @@
-     return gfx::kPlaceholderColor;
-   }
- 
-+  // RomeetMods: Custom vertical tab styling (Greyish inactive, System Accent active)
-+  if (selection_state == TabStyle::TabSelectionState::kActive ||
-+      selection_state == TabStyle::TabSelectionState::kSelected) {
-+    return tab()->GetColorProvider()->GetColor(ui::kColorSysPrimary);
-+  } else {
-+    return tab()->GetColorProvider()->IsDarkMode() ? SkColorSetARGB(22, 255, 255, 255)
-+                                                   : SkColorSetARGB(18, 0, 0, 0);
-+  }
-+
-   return tab_style()->GetTabBackgroundColor(
-       selection_state, hovered, active_widget, *tab()->GetColorProvider());
+--- a/chrome/browser/ui/views/tabs/tab.cc	2026-09-11 07:09:54
++++ b/chrome/browser/ui/views/tabs/tab.cc	2026-09-11 07:09:54
+@@ -761,6 +761,18 @@
  }
-@@ -980,6 +991,8 @@
-     gfx::Canvas* canvas,
-     TabStyle::TabSelectionState selection_state,
-     SkColor stroke_color) const {
-+  // RomeetMods: Borderless tabs (no stroke)
-+  return;
-   const bool is_active =
-       selection_state == TabStyle::TabSelectionState::kActive;
-   const int stroke_thickness = GetStrokeThickness(is_active);
---- a/chrome/common/pref_names.h	2026-09-11 06:40:40
-+++ b/chrome/common/pref_names.h	2026-09-11 06:40:40
-@@ -4296,6 +4296,12 @@
- // is set as a SharedWorker script URL.
- inline constexpr char kSharedWorkerBlobURLFixEnabled[] =
-     "worker.shared_worker_blob_url_fix_enabled";
-+
-+// RomeetMods custom preferences
-+inline constexpr char kRomeetModsPinnedGridColumns[] = "romeetmods.pinned_grid_columns";
-+inline constexpr char kRomeetModsPinnedTileWidth[] = "romeetmods.pinned_tile_width";
-+inline constexpr char kRomeetModsPinnedTileHeight[] = "romeetmods.pinned_tile_height";
-+inline constexpr char kRomeetModsSidebarWidth[] = "romeetmods.sidebar_width";
- }  // namespace prefs
  
- #endif  // CHROME_COMMON_PREF_NAMES_H_
+ void Tab::OnPaint(gfx::Canvas* canvas) {
++  if (GetColorProvider()) {
++    cc::PaintFlags flags;
++    flags.setAntiAlias(true);
++    if (IsActive() || IsSelected()) {
++      flags.setColor(GetColorProvider()->GetColor(ui::kColorSysPrimary));
++    } else {
++      flags.setColor(GetColorProvider()->IsDarkMode() ? SkColorSetARGB(22, 255, 255, 255)
++                                                      : SkColorSetARGB(18, 0, 0, 0));
++    }
++    canvas->DrawRoundRect(gfx::RectF(GetLocalBounds()), 6.0f, flags);
++    return;
++  }
+   tab_style_views()->PaintTab(canvas);
+ }
+ 
