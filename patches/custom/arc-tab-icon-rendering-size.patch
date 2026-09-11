@@ -15,7 +15,8 @@
  
    // Don't paint the attention indicator during the loading animation.
    if (!GetShowingLoadingAnimation() && GetShowingAttentionIndicator() &&
-@@ -348,8 +348,8 @@
+@@ -348,7 +348,7 @@
+   // . a circle in the bottom right (or left in rtl) of the favicon.
    if (!icon.isNull()) {
      canvas->SaveLayerAlpha(0xff);
 -    canvas->DrawImageInt(icon, 0, 0, bounds.width(), bounds.height(),
@@ -23,8 +24,8 @@
                           bounds.x(), bounds.y(), bounds.width(),
                           bounds.height(), false);
      cc::PaintFlags clear_flags;
-     clear_flags.setAntiAlias(true);
-@@ -488,8 +488,8 @@
+@@ -488,7 +488,7 @@
+     canvas->Translate(gfx::Vector2d(-bounds.x(), -bounds.y()));
    }
  
 -  canvas->DrawImageInt(icon, 0, 0, bounds.width(), bounds.height(), bounds.x(),
