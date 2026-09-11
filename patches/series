@@ -41,3 +41,4 @@ custom/arc-pinned-tabs-square.patch
 custom/arc-tab-styling-v3.patch
 custom/arc-tab-icon-rendering-size.patch
 custom/arc-tab-icon-centering-and-scaling-v2.patch
+custom/arc-tab-vertical-layout-fix.patch
