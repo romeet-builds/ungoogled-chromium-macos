@@ -1,0 +1,10 @@
+--- a/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc	2026-09-11 15:59:20
++++ b/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc	2026-09-11 15:59:05
+@@ -401,6 +401,7 @@
+     gfx::Rect bounds =
+         gfx::Rect(child->GetPreferredSize(views::SizeBounds(child_width, {})));
+     bounds.set_width(child_width);
++    bounds.set_height(child_width); // RomeetMods: Enforce 1:1 square pinned tabs
+ 
+     auto drag_data = GetVisualDataForDraggedView(*child);
+     const bool should_show_child =
