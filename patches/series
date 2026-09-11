@@ -38,4 +38,5 @@ custom/fix-render-widget-host-view-cocoa.patch
 custom/fix-native-screen-capture-picker-mac.patch
 custom/fix-system-media-capture-permissions-mac.patch
 custom/arc-pinned-tabs-square.patch
-custom/arc-tab-styling.patch
+custom/arc-tab-styling-v2.patch
+custom/arc-tab-icon-centering-and-scaling.patch

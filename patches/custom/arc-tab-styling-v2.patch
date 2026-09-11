@@ -1,0 +1,11 @@
+--- a/chrome/browser/ui/views/tabs/common/tab_view.cc
++++ b/chrome/browser/ui/views/tabs/common/tab_view.cc
+@@ -594,7 +594,7 @@
+     cc::PaintFlags flags;
+     flags.setAntiAlias(true);
+     flags.setColor(GetCurrentTabBackgroundColor(selection_state));
+-    canvas->DrawRect(GetContentsBounds(), flags);
++    canvas->DrawRoundRect(gfx::RectF(GetContentsBounds()), pinned_ ? 0.0f : 8.0f, flags);
+   }
+ 
+   if (fill_id.has_value()) {
