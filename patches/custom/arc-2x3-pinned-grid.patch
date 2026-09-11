@@ -1,12 +1,12 @@
---- a/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc	2026-09-10 22:56:14
-+++ b/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc	2026-09-10 22:56:14
-@@ -411,18 +411,13 @@
+--- a/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
++++ b/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
+@@ -377,18 +377,13 @@
          size_bounds.width().value() -
          GetLayoutConstant(LayoutConstant::kVerticalTabStripHorizontalPadding);
  
 -    // When we are in collapsed state, only one child should be shown per row.
 -    // During collapse animation and other cases, fit as many as possible.
-+    constexpr int kArcGridColumns = 4;
++    constexpr int kArcGridColumns = 3;
      children_on_row =
          tabs::IsVerticalTabsExpandOnHoverFeatureEnabled() &&
                  collapse_state ==
