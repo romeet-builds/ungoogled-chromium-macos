@@ -10,7 +10,9 @@
 +    if (IsActive() || IsSelected()) {
 +      flags.setColor(GetColorProvider()->GetColor(ui::kColorSysPrimary));
 +    } else {
-+      flags.setColor(GetColorProvider()->IsDarkMode() ? SkColorSetARGB(22, 255, 255, 255)
++      SkColor bg = GetColorProvider()->GetColor(ui::kColorSysSurface);
++      bool is_dark = (SkColorGetR(bg) * 299 + SkColorGetG(bg) * 587 + SkColorGetB(bg) * 114) < 128000;
++      flags.setColor(is_dark ? SkColorSetARGB(22, 255, 255, 255)
 +                                                      : SkColorSetARGB(18, 0, 0, 0));
 +    }
 +    canvas->DrawRoundRect(gfx::RectF(GetLocalBounds()), 6.0f, flags);
