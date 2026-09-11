@@ -25,3 +25,17 @@
    }
  
    if (fill_id.has_value()) {
+@@ -1170,11 +1184,8 @@
+       SetBorder(views::CreateEmptyBorder(gfx::Insets(GetLayoutConstant(
+           LayoutConstant::kVerticalTabPinnedBorderThickness))));
+     } else {
+-      SetBorder(views::CreateRoundedRectBorder(
+-          GetLayoutConstant(LayoutConstant::kVerticalTabPinnedBorderThickness),
+-          GetLayoutConstant(LayoutConstant::kVerticalTabCornerRadius),
+-          IsFrameActive() ? kColorVerticalTabPinnedOutline
+-                          : kColorTabDividerFrameInactive));
++      SetBorder(views::CreateEmptyBorder(gfx::Insets(GetLayoutConstant(
++          LayoutConstant::kVerticalTabPinnedBorderThickness))));
+     }
+   } else if (GetBorder()) {
+     SetBorder(nullptr);

@@ -15,3 +15,20 @@
  
    // Don't paint the attention indicator during the loading animation.
    if (!GetShowingLoadingAnimation() && GetShowingAttentionIndicator() &&
+@@ -348,8 +348,8 @@
+   if (!icon.isNull()) {
+     canvas->SaveLayerAlpha(0xff);
+-    canvas->DrawImageInt(icon, 0, 0, bounds.width(), bounds.height(),
++    canvas->DrawImageInt(icon, 0, 0, icon.width(), icon.height(),
+                          bounds.x(), bounds.y(), bounds.width(),
+                          bounds.height(), false);
+     cc::PaintFlags clear_flags;
+     clear_flags.setAntiAlias(true);
+@@ -488,8 +488,8 @@
+   }
+ 
+-  canvas->DrawImageInt(icon, 0, 0, bounds.width(), bounds.height(), bounds.x(),
++  canvas->DrawImageInt(icon, 0, 0, icon.width(), icon.height(), bounds.x(),
+                        bounds.y(), bounds.width(), bounds.height(),
+                        /*filter=*/true);
+ 

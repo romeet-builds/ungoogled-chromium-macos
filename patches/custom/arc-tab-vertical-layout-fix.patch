@@ -1,0 +1,29 @@
+--- a/chrome/browser/ui/views/tabs/common/tab_view_vertical_layout.cc
++++ b/chrome/browser/ui/views/tabs/common/tab_view_vertical_layout.cc
+@@ -53,7 +53,7 @@
+   gfx::Rect bounds_remaining = gfx::Rect(layouts.host_size);
+-  bounds_remaining.Inset(TabView().tab_styling()->GetContentsInsets());
+ 
+   // If the tab is collapsed but animating with a wider width then we shouldn't
+   // center the contents.
+   const bool is_centered = (TabView().pinned_ || TabView().collapsed_) &&
+                            !TabView().IsInExpandOnHover(width);
+ 
++  if (!is_centered) {
++    bounds_remaining.Inset(TabView().tab_styling()->GetContentsInsets());
++  }
++
+   int placed_children = 0;
+   for (const auto& child : tab_children_configs_) {
+@@ -93,8 +93,12 @@
+     const gfx::Size preferred_size = config.view->GetPreferredSize();
+     preferred_width = preferred_size.width();
+     preferred_height = preferred_size.height();
++
++    if (center && config.view == TabView().icon_) {
++      preferred_width = 24;
++      preferred_height = 24;
++    }
+   }
+ 
+   // Some icons have larger sizes to account for decoration. Make a distinction
