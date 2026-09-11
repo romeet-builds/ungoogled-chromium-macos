@@ -1,5 +1,5 @@
---- a/chrome/browser/ui/views/tabs/tab_icon.cc
-+++ b/chrome/browser/ui/views/tabs/tab_icon.cc
+--- a/chrome/browser/ui/views/tabs/tab/tab_icon.cc
++++ b/chrome/browser/ui/views/tabs/tab/tab_icon.cc
 @@ -274,11 +274,11 @@
    }
  
