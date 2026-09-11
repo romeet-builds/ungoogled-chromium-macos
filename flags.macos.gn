@@ -1,5 +1,5 @@
 blink_symbol_level=0
-chrome_pgo_phase=2
+chrome_pgo_phase=0
 enable_iterator_debugging=false
 enable_mse_mpeg2ts_stream_parser=true
 enable_rust=true
@@ -9,7 +9,7 @@ fatal_linker_warnings=false
 ffmpeg_branding="Chrome"
 is_clang=true
 is_debug=false
-is_official_build=true
+is_official_build=false
 proprietary_codecs=true
 v8_symbol_level=0
 symbol_level=0
@@ -23,4 +23,3 @@ use_unified_system_module=false
 mac_sdk_min="14.0"
 mac_deployment_target="13.0"
 mac_min_system_version="13.0"
-

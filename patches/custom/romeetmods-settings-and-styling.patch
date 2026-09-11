@@ -1,7 +1,6 @@
---- a/chrome/browser/ui/views/tabs/tab.cc	2026-09-11 07:09:54
-+++ b/chrome/browser/ui/views/tabs/tab.cc	2026-09-11 07:09:54
-@@ -761,6 +761,18 @@
- }
+--- a/chrome/browser/ui/views/tabs/tab.cc
++++ b/chrome/browser/ui/views/tabs/tab.cc
+@@ -1,4 +1,15 @@
  
  void Tab::OnPaint(gfx::Canvas* canvas) {
 +  if (GetColorProvider()) {
@@ -10,14 +9,10 @@
 +    if (IsActive() || IsSelected()) {
 +      flags.setColor(GetColorProvider()->GetColor(ui::kColorSysPrimary));
 +    } else {
-+      SkColor bg = GetColorProvider()->GetColor(ui::kColorSysSurface);
-+      bool is_dark = (SkColorGetR(bg) * 299 + SkColorGetG(bg) * 587 + SkColorGetB(bg) * 114) < 128000;
-+      flags.setColor(is_dark ? SkColorSetARGB(22, 255, 255, 255)
-+                                                      : SkColorSetARGB(18, 0, 0, 0));
++      flags.setColor(GetColorProvider()->GetColor(ui::kColorSysSurfaceVariant));
 +    }
 +    canvas->DrawRoundRect(gfx::RectF(GetLocalBounds()), 6.0f, flags);
 +    return;
 +  }
    tab_style_views()->PaintTab(canvas);
  }
- 
