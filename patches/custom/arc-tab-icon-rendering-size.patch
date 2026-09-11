@@ -1,0 +1,17 @@
+--- a/chrome/browser/ui/views/tabs/tab_icon.cc
++++ b/chrome/browser/ui/views/tabs/tab_icon.cc
+@@ -274,11 +274,11 @@
+   }
+ 
+   gfx::Rect icon_bounds(
+-      GetMirroredXWithWidthInView(contents_bounds.x(), gfx::kFaviconSize),
++      GetMirroredXWithWidthInView(contents_bounds.x(), contents_bounds.width()),
+       contents_bounds.y() +
+           static_cast<int>(contents_bounds.height() * hiding_fraction_),
+-      std::min(gfx::kFaviconSize, contents_bounds.width()),
+-      std::min(gfx::kFaviconSize, contents_bounds.height()));
++      contents_bounds.width(),
++      contents_bounds.height());
+ 
+   // Don't paint the attention indicator during the loading animation.
+   if (!GetShowingLoadingAnimation() && GetShowingAttentionIndicator() &&
