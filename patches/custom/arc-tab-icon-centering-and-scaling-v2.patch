@@ -1,6 +1,6 @@
 --- a/chrome/browser/ui/views/tabs/tab.cc
 +++ b/chrome/browser/ui/views/tabs/tab.cc
-@@ -390,9 +390,13 @@
+@@ -348,6 +348,12 @@
      // Add space for insets outside the favicon bounds.
      favicon_bounds.Inset(-icon_->GetInsets());
      favicon_bounds.set_size(icon_->GetPreferredSize());
@@ -13,6 +13,3 @@
    }
    icon_->SetBoundsRect(favicon_bounds);
    icon_->SetVisible(showing_icon_);
- 
-   const int after_title_padding =
-       GetLayoutConstant(LayoutConstant::kTabAfterTitlePadding);
