@@ -1,6 +1,6 @@
 --- a/chrome/browser/ui/views/frame/browser_view.cc
 +++ b/chrome/browser/ui/views/frame/browser_view.cc
-@@ -1383,35 +1383,17 @@
+@@ -1383,35 +1383,16 @@
            Browser::WindowFeature::kFeatureTabStrip)) {
      return false;
    }
@@ -27,7 +27,7 @@
 -  }
 -
 -  return horizontal_tab_strip_region_view_->GetTabStripView() != nullptr;
-+  // RomeetMods / Mod: When vertical tabs are active, hide the horizontal tab strip.
++  // RomeetMods: When vertical tabs are active, hide the horizontal tab strip.
 +  if (ShouldDrawVerticalTabStrip()) {
 +    return false;
 +  }
@@ -36,10 +36,10 @@
  }
 
  bool BrowserView::ShouldDrawVerticalTabStrip() const {
-   auto* controller = tabs::VerticalTabStripStateController::From(browser_);
+-  auto* controller = tabs::VerticalTabStripStateController::From(browser_);
 -  return ShouldDrawTabStrip() && controller &&
 -         controller->ShouldDisplayVerticalTabs() && browser_->is_type_normal();
-+  return controller && controller->ShouldDisplayVerticalTabs() && browser_->is_type_normal();
++  return browser_ && browser_->is_type_normal();
  }
 
  bool BrowserView::ShouldDrawWebAppFrameToolbar() const {
@@ -53,13 +53,3 @@
    if (!browser_->SupportsWindowFeature(
            Browser::WindowFeature::kFeatureBookmarkBar)) {
      return false;
-@@ -3035,6 +3020,9 @@
- }
-
- bool BrowserView::IsToolbarVisible() const {
-+  if (ShouldDrawVerticalTabStrip()) {
-+    return false;
-+  }
- #if BUILDFLAG(IS_MAC)
-   // Immersive full screen makes it possible to display the toolbar when
-   // kShowFullscreenToolbar is not set.

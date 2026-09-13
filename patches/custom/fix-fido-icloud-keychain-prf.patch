@@ -1,6 +1,6 @@
 --- a/device/fido/mac/icloud_keychain.mm
 +++ b/device/fido/mac/icloud_keychain.mm
-@@ -6,6 +6,27 @@
+@@ -6,7 +6,28 @@
  
  #import <AuthenticationServices/AuthenticationServices.h>
  #import <Foundation/Foundation.h>

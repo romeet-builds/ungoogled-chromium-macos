@@ -1,6 +1,6 @@
 --- a/chrome/browser/permissions/system/system_media_capture_permissions_mac.mm
 +++ b/chrome/browser/permissions/system/system_media_capture_permissions_mac.mm
-@@ -8,6 +8,19 @@
+@@ -8,4 +8,17 @@
  #import <Cocoa/Cocoa.h>
  
 +#if !defined(__MAC_15_4) && !defined(MAC_OS_X_VERSION_15_4)

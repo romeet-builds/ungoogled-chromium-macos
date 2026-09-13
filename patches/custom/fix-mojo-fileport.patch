@@ -1,6 +1,6 @@
 --- a/mojo/core/ipcz_driver/wrapped_platform_handle.cc
 +++ b/mojo/core/ipcz_driver/wrapped_platform_handle.cc
-@@ -24,8 +24,12 @@
+@@ -24,9 +24,13 @@
  
  #if BUILDFLAG(IS_APPLE)
  #include <mach/mach.h>

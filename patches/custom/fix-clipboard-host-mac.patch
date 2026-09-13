@@ -1,6 +1,6 @@
 --- a/content/browser/renderer_host/clipboard_host_impl_mac.mm
 +++ b/content/browser/renderer_host/clipboard_host_impl_mac.mm
-@@ -13,6 +13,19 @@
+@@ -13,5 +13,18 @@
  #include "content/public/browser/browser_thread.h"
  #import "ui/base/cocoa/find_pasteboard.h"
  
