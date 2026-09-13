@@ -62,10 +62,14 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
    if (base::FeatureList::IsEnabled(features::kTabGroupsFocusing)) {
      unfocus_button_ = AddChildButtonFor(kActionUnfocusTabGroup);
      unfocus_button_->SetProperty(views::kElementIdentifierKey,
-@@ -224,14 +271,16 @@
+@@ -224,14 +271,20 @@
                         2;
      }
  
++#if BUILDFLAG(IS_MAC)
++    left_alignment = 88;
++    y_baseline = 20;
++#endif
 +    int current_x = left_alignment;
      int current_y = 0;
      if (unfocus_button_ && unfocus_button_->GetVisible()) {
@@ -76,11 +80,11 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
                         pref_size.width(), pref_size.height());
        layout.child_layouts.emplace_back(unfocus_button_.get(),
                                          unfocus_button_->GetVisible(), bounds);
-+      current_x += pref_size.width();
++      current_x += pref_size.width() + 4;
        current_y =
            bounds.bottom() +
            GetLayoutConstant(
-@@ -240,17 +289,48 @@
+@@ -240,17 +293,48 @@
  
      if (collapse_button_ && collapse_button_->GetVisible()) {
        const gfx::Size pref_size = collapse_button_->GetPreferredSize();
@@ -90,7 +94,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
                         pref_size.width(), pref_size.height());
        layout.child_layouts.emplace_back(collapse_button_.get(),
                                          collapse_button_->GetVisible(), bounds);
-+      current_x += pref_size.width();
++      current_x += pref_size.width() + 4;
        current_y =
            bounds.bottom() +
            GetLayoutConstant(
@@ -104,7 +108,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(back_button_.get(),
 +                                        back_button_->GetVisible(), bounds);
-+      current_x += pref_size.width();
++      current_x += pref_size.width() + 4;
 +    }
 +
 +    if (forward_button_ && forward_button_->GetVisible()) {
@@ -114,7 +118,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(forward_button_.get(),
 +                                        forward_button_->GetVisible(), bounds);
-+      current_x += pref_size.width();
++      current_x += pref_size.width() + 4;
 +    }
 +
 +    if (reload_button_ && reload_button_->GetVisible()) {
@@ -124,13 +128,13 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(reload_button_.get(),
 +                                        reload_button_->GetVisible(), bounds);
-+      current_x += pref_size.width();
++      current_x += pref_size.width() + 4;
 +    }
 +
      int right_alignment = host_size.width();
  
      bool wrap_during_animation =
-@@ -311,6 +391,18 @@
+@@ -311,6 +395,18 @@
    }
  
    if (unfocus_button_ && IsHitInView(unfocus_button_, point)) {

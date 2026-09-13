@@ -1,0 +1,228 @@
+--- a/chrome/browser/ui/views/frame/browser_view.h
++++ b/chrome/browser/ui/views/frame/browser_view.h
+@@ -45,6 +45,8 @@
+ class TabSearchBubbleHost;
+ class ToolbarView;
+ class TopContainerView;
++class ArcFloatingExtensionsView;
++class ArcCommandBarView;
+ 
+ namespace content {
+ class WebContents;
+@@ -1020,6 +1022,9 @@
+   // The view that manages vertical tabs and their related UI elements.
+   raw_ptr<tabs::VerticalTabStripRegionView> vertical_tab_strip_region_view_ =
+       nullptr;
++
++  raw_ptr<views::View> arc_floating_extensions_overlay_ = nullptr;
++  raw_ptr<ArcCommandBarView> arc_command_bar_view_ = nullptr;
+ 
+   // The view that hosts the side search web contents.
+   raw_ptr<SideSearchBrowserController> side_search_controller_ = nullptr;
+--- a/chrome/browser/ui/views/frame/browser_view.cc
++++ b/chrome/browser/ui/views/frame/browser_view.cc
+@@ -20,4 +20,166 @@
+ #include "chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_container.h"
++#include "chrome/browser/ui/browser_commands.h"
++#include "chrome/app/chrome_command_ids.h"
++#include "components/vector_icons/vector_icons.h"
++#include "ui/views/controls/textfield/textfield.h"
++#include "ui/views/controls/textfield/textfield_controller.h"
++#include "ui/views/controls/button/image_button_factory.h"
++#include "ui/views/controls/image_view.h"
++#include "ui/views/background.h"
++#include "ui/views/border.h"
++#include "ui/views/layout/box_layout.h"
++#include "base/strings/escape.h"
++#include "base/strings/utf_string_conversions.h"
++#include "base/strings/string_util.h"
++
++class ArcFloatingExtensionsView : public views::View {
++ public:
++  explicit ArcFloatingExtensionsView(Browser* browser) : browser_(browser) {
++    SetLayoutManager(std::make_unique<views::BoxLayout>(
++        views::BoxLayout::Orientation::kHorizontal,
++        gfx::Insets::VH(3, 6), 4));
++    SetBackground(views::CreateRoundedRectBackground(
++        SkColorSetARGB(220, 32, 33, 36), 16));
++    SetBorder(views::CreateRoundedRectBorder(
++        1, 16, SkColorSetARGB(50, 255, 255, 255)));
++
++    auto* ext_btn = AddChildView(views::CreateVectorImageButtonWithNativeTheme(
++        base::BindRepeating([](Browser* b) {
++          if (b) { chrome::ExecuteCommand(b, IDC_MANAGE_EXTENSIONS); }
++        }, browser_),
++        vector_icons::kExtensionIcon, 16,
++        SkColorSetRGB(220, 220, 225)));
++    ext_btn->SetTooltipText(u"Extensions (Manage)");
++    ext_btn->SetPreferredSize(gfx::Size(24, 24));
++
++    auto* menu_btn = AddChildView(views::CreateVectorImageButtonWithNativeTheme(
++        base::BindRepeating([](Browser* b) {
++          if (b) { chrome::ExecuteCommand(b, IDC_SHOW_APP_MENU); }
++        }, browser_),
++        vector_icons::kMoreVertIcon, 16,
++        SkColorSetRGB(220, 220, 225)));
++    menu_btn->SetTooltipText(u"Menu & Settings");
++    menu_btn->SetPreferredSize(gfx::Size(24, 24));
++  }
++ private:
++  raw_ptr<Browser> browser_ = nullptr;
++};
++
++class ArcCommandBarView : public views::View, public views::TextfieldController {
++ public:
++  explicit ArcCommandBarView(Browser* browser, BrowserView* browser_view)
++      : browser_(browser), browser_view_(browser_view) {
++    SetVisible(false);
++    card_view_ = AddChildView(std::make_unique<views::View>());
++    card_view_->SetBackground(views::CreateRoundedRectBackground(
++        SkColorSetARGB(245, 28, 29, 32), 16));
++    card_view_->SetBorder(views::CreateRoundedRectBorder(
++        1, 16, SkColorSetARGB(60, 255, 255, 255)));
++
++    auto* card_layout = card_view_->SetLayoutManager(
++        std::make_unique<views::BoxLayout>(
++            views::BoxLayout::Orientation::kHorizontal,
++            gfx::Insets::VH(10, 16), 12));
++    card_layout->set_cross_axis_alignment(
++        views::BoxLayout::CrossAxisAlignment::kCenter);
++
++    auto* search_icon = card_view_->AddChildView(std::make_unique<views::ImageView>());
++    search_icon->SetImage(ui::ImageModel::FromVectorIcon(
++        vector_icons::kSearchIcon, SkColorSetRGB(180, 185, 195), 18));
++
++    textfield_ = card_view_->AddChildView(std::make_unique<views::Textfield>());
++    textfield_->set_controller(this);
++    textfield_->SetPlaceholderText(u"Search or enter URL...");
++    textfield_->SetTextColor(SK_ColorWHITE);
++    textfield_->SetBackgroundColor(SK_ColorTRANSPARENT);
++    textfield_->SetBorder(nullptr);
++    card_layout->SetFlexForView(textfield_, 1);
++  }
++
++  void Show() {
++    SetVisible(true);
++    textfield_->SetText(std::u16string());
++    textfield_->RequestFocus();
++  }
++
++  void Hide() {
++    SetVisible(false);
++    if (browser_view_ && browser_view_->contents_web_view()) {
++      browser_view_->contents_web_view()->RequestFocus();
++    }
++  }
++
++  void Layout(PassKey) override {
++    gfx::Rect parent_bounds = GetLocalBounds();
++    int card_w = std::min(580, std::max(320, parent_bounds.width() - 80));
++    int card_h = 52;
++    int card_x = (parent_bounds.width() - card_w) / 2;
++    int card_y = std::max(60, parent_bounds.height() / 4);
++    card_view_->SetBounds(card_x, card_y, card_w, card_h);
++  }
++
++  bool OnMousePressed(const ui::MouseEvent& event) override {
++    if (!card_view_->bounds().Contains(event.location())) {
++      Hide();
++      return true;
++    }
++    return false;
++  }
++
++  bool HandleKeyEvent(views::Textfield* sender,
++                      const ui::KeyEvent& key_event) override {
++    if (key_event.type() == ui::EventType::kKeyPressed) {
++      if (key_event.key_code() == ui::VKEY_ESCAPE) {
++        Hide();
++        return true;
++      }
++      if (key_event.key_code() == ui::VKEY_RETURN) {
++        std::u16string text = textfield_->GetText();
++        if (!text.empty()) {
++          ExecuteNavigation(text);
++        }
++        Hide();
++        return true;
++      }
++    }
++    return false;
++  }
++
++  void ExecuteNavigation(const std::u16string& input) {
++    std::string text_utf8 = base::UTF16ToUTF8(input);
++    base::TrimWhitespaceASCII(text_utf8, base::TRIM_ALL, &text_utf8);
++    if (text_utf8.empty()) return;
++
++    GURL url;
++    if (text_utf8.find("://") != std::string::npos ||
++        text_utf8.rfind("chrome://", 0) == 0 ||
++        text_utf8.rfind("about:", 0) == 0) {
++      url = GURL(text_utf8);
++    } else if (text_utf8.find(' ') == std::string::npos &&
++               (text_utf8.find('.') != std::string::npos ||
++                text_utf8.rfind("localhost", 0) == 0)) {
++      url = GURL("https://" + text_utf8);
++    } else {
++      url = GURL("https://www.google.com/search?q=" +
++                 base::EscapeQueryParamValue(text_utf8, true));
++    }
++
++    if (browser_) {
++      browser_->OpenURL(
++          content::OpenURLParams(url, content::Referrer(),
++                                 WindowOpenDisposition::CURRENT_TAB,
++                                 ui::PAGE_TRANSITION_TYPED, false),
++          /*navigation_handle_callback=*/{});
++    }
++  }
++
++ private:
++  raw_ptr<Browser> browser_ = nullptr;
++  raw_ptr<BrowserView> browser_view_ = nullptr;
++  raw_ptr<views::View> card_view_ = nullptr;
++  raw_ptr<views::Textfield> textfield_ = nullptr;
++};
++
+ 
+ namespace {
+ 
+@@ -1070,6 +1232,11 @@
+   frame_ = frame;
+ 
+   InitViews();
++  if (ShouldDrawVerticalTabStrip()) {
++    arc_floating_extensions_overlay_ = AddChildView(std::make_unique<ArcFloatingExtensionsView>(browser_.get()));
++    arc_command_bar_view_ = AddChildView(std::make_unique<ArcCommandBarView>(browser_.get(), this));
++    arc_command_bar_view_->Show();
++  }
+ 
+   // Ensure the hover card controller is created before the tab strip is
+   // created.
+@@ -1945,6 +2112,10 @@
+ }
+ 
+ void BrowserView::SetFocusToLocationBar(bool is_user_gesture) {
++  if (ShouldDrawVerticalTabStrip() && arc_command_bar_view_) {
++    arc_command_bar_view_->Show();
++    return;
++  }
+   if (!IsLocationBarVisible()) {
+     return;
+   }
+@@ -3420,5 +3591,14 @@
+ void BrowserView::Layout(PassKey) {
+   LayoutSuperclass<views::ClientView>(this);
++  if (arc_floating_extensions_overlay_ && ShouldDrawVerticalTabStrip()) {
++    arc_floating_extensions_overlay_->SetVisible(true);
++    arc_floating_extensions_overlay_->SetBounds(width() - 88, 12, 76, 32);
++  } else if (arc_floating_extensions_overlay_) {
++    arc_floating_extensions_overlay_->SetVisible(false);
++  }
++  if (arc_command_bar_view_) {
++    arc_command_bar_view_->SetBoundsRect(GetLocalBounds());
++  }
+ }
+ 
+ void BrowserView::OnGestureEvent(ui::GestureEvent* event) {
