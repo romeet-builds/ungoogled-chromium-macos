@@ -65,10 +65,10 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +  }, browser_));
 +  extensions_button_->SetImageModel(
 +      views::Button::STATE_NORMAL,
-+      ui::ImageModel::FromVectorIcon(vector_icons::kExtensionIcon,
++      ui::ImageModel::FromVectorIcon(vector_icons::kExtensionOldIcon,
 +                                     kColorTabForegroundInactiveFrameActive,
 +                                     kNavIconSize));
-+  extensions_button_->UpdateIcon(ui::ImageModel::FromVectorIcon(vector_icons::kExtensionIcon,
++  extensions_button_->UpdateIcon(ui::ImageModel::FromVectorIcon(vector_icons::kExtensionOldIcon,
 +                                                               kColorTabForegroundInactiveFrameActive,
 +                                                               kNavIconSize));
 +  extensions_button_->SetTooltipText(u"Extensions");
@@ -89,20 +89,25 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
    if (base::FeatureList::IsEnabled(features::kTabGroupsFocusing)) {
      unfocus_button_ = AddChildButtonFor(kActionUnfocusTabGroup);
      unfocus_button_->SetProperty(views::kElementIdentifierKey,
-@@ -224,33 +298,89 @@
+@@ -224,33 +298,92 @@
                         2;
      }
  
 +#if BUILDFLAG(IS_MAC)
-+    left_alignment = 88;
-+    y_baseline = 20;
++    const int effective_left = 88;
++    const int effective_y = 20;
++#else
++    const int effective_left = left_alignment;
++    const int effective_y = y_baseline;
 +#endif
-+    int current_x = left_alignment;
++    int current_x = effective_left;
      int current_y = 0;
      if (unfocus_button_ && unfocus_button_->GetVisible()) {
        const gfx::Size pref_size = unfocus_button_->GetPreferredSize();
-       gfx::Rect bounds(left_alignment,
-                        std::max(0, y_baseline - pref_size.height() / 2),
+-      gfx::Rect bounds(left_alignment,
+-                       std::max(0, y_baseline - pref_size.height() / 2),
++      gfx::Rect bounds(effective_left,
++                       std::max(0, effective_y - pref_size.height() / 2),
                         pref_size.width(), pref_size.height());
        layout.child_layouts.emplace_back(unfocus_button_.get(),
                                          unfocus_button_->GetVisible(), bounds);
@@ -115,8 +120,10 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
  
      if (collapse_button_ && collapse_button_->GetVisible()) {
        const gfx::Size pref_size = collapse_button_->GetPreferredSize();
-       gfx::Rect bounds(left_alignment,
-                        std::max(0, y_baseline - pref_size.height() / 2),
+-      gfx::Rect bounds(left_alignment,
+-                       std::max(0, y_baseline - pref_size.height() / 2),
++      gfx::Rect bounds(effective_left,
++                       std::max(0, effective_y - pref_size.height() / 2),
                         pref_size.width(), pref_size.height());
        layout.child_layouts.emplace_back(collapse_button_.get(),
                                          collapse_button_->GetVisible(), bounds);
@@ -130,7 +137,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +    if (back_button_ && back_button_->GetVisible()) {
 +      const gfx::Size pref_size = back_button_->GetPreferredSize();
 +      gfx::Rect bounds(current_x,
-+                       std::max(0, y_baseline - pref_size.height() / 2),
++                       std::max(0, effective_y - pref_size.height() / 2),
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(back_button_.get(),
 +                                        back_button_->GetVisible(), bounds);
@@ -140,7 +147,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +    if (forward_button_ && forward_button_->GetVisible()) {
 +      const gfx::Size pref_size = forward_button_->GetPreferredSize();
 +      gfx::Rect bounds(current_x,
-+                       std::max(0, y_baseline - pref_size.height() / 2),
++                       std::max(0, effective_y - pref_size.height() / 2),
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(forward_button_.get(),
 +                                        forward_button_->GetVisible(), bounds);
@@ -150,7 +157,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +    if (reload_button_ && reload_button_->GetVisible()) {
 +      const gfx::Size pref_size = reload_button_->GetPreferredSize();
 +      gfx::Rect bounds(current_x,
-+                       std::max(0, y_baseline - pref_size.height() / 2),
++                       std::max(0, effective_y - pref_size.height() / 2),
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(reload_button_.get(),
 +                                        reload_button_->GetVisible(), bounds);
@@ -161,7 +168,7 @@ diff -Naur a/chrome/browser/ui/views/tabs/vertical/vertical_tab_strip_top_contai
 +      const gfx::Size pref_size = extensions_button_->GetPreferredSize();
 +      int ext_x = host_size.width() - pref_size.width() - 8;
 +      gfx::Rect bounds(ext_x,
-+                       std::max(0, y_baseline - pref_size.height() / 2),
++                       std::max(0, effective_y - pref_size.height() / 2),
 +                       pref_size.width(), pref_size.height());
 +      layout.child_layouts.emplace_back(extensions_button_.get(),
 +                                        extensions_button_->GetVisible(), bounds);
