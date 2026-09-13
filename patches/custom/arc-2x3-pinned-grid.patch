@@ -1,23 +1,42 @@
---- a/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
-+++ b/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
-@@ -377,18 +377,13 @@
+--- /Users/romeet/.gemini/antigravity/brain/ab9d16f5-2209-4ee5-a608-2fc5ac020d2c/scratch/pinned_tab_container_view.cc	2026-09-13 21:06:36
++++ scratch/pinned_tab_container_view_modified.cc	2026-09-13 21:06:50
+@@ -411,23 +411,17 @@
          size_bounds.width().value() -
          GetLayoutConstant(LayoutConstant::kVerticalTabStripHorizontalPadding);
  
 -    // When we are in collapsed state, only one child should be shown per row.
 -    // During collapse animation and other cases, fit as many as possible.
-+    constexpr int kArcGridColumns = 4;
++    // RomeetMods: Responsive Arc-style pinned tabs grid reflow (4 -> 3 -> 2 -> 1 columns)
++    constexpr int kTargetTileWidth = 48;
++    int max_cols = std::max(1, (available_width + kTabPadding) / (kTargetTileWidth + kTabPadding));
++    max_cols = std::min(4, max_cols);
      children_on_row =
-         tabs::IsVerticalTabsExpandOnHoverFeatureEnabled() &&
-                 collapse_state ==
-                     tabs::VerticalTabStripCollapseState::kCollapsed
+-        tabs::IsVerticalTabsExpandOnHoverFeatureEnabled() &&
+-                collapse_state ==
+-                    tabs::VerticalTabStripCollapseState::kCollapsed
++        (collapse_state == tabs::VerticalTabStripCollapseState::kCollapsed)
              ? 1
 -            : std::min(
 -                  children_on_row,
 -                  static_cast<int>(std::floor((available_width - child_width) /
 -                                              (child_width + kTabPadding)) +
 -                                   1));
-+            : kArcGridColumns;
++            : std::min(static_cast<int>(children.size()), max_cols);
++    children_on_row = std::max(1, children_on_row);
  
-     // Allocate extra space to the tabs.
-     available_width -=
+-    // Allocate extra space to the tabs.
+-    available_width -=
+-        (children_on_row * child_width) + (kTabPadding * (children_on_row - 1));
+-    child_width += std::floor(available_width / children_on_row);
++    child_width = std::max(kTargetTileWidth, (available_width - (kTabPadding * (children_on_row - 1))) / children_on_row);
+   }
+ 
+   int row_index = 0;
+@@ -435,6 +429,7 @@
+     gfx::Rect bounds =
+         gfx::Rect(child->GetPreferredSize(views::SizeBounds(child_width, {})));
+     bounds.set_width(child_width);
++    bounds.set_height(child_width); // RomeetMods: Enforce 1:1 square pinned tabs
+ 
+     auto drag_data = GetVisualDataForDraggedView(*child);
+     const bool should_show_child = !(drag_data && drag_data->should_hide);
