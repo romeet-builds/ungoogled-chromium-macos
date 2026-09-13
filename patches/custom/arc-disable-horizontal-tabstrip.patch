@@ -43,13 +43,3 @@
  }
 
  bool BrowserView::ShouldDrawWebAppFrameToolbar() const {
-@@ -3000,6 +2982,9 @@
- }
-
- bool BrowserView::IsBookmarkBarVisible() const {
-+  if (ShouldDrawVerticalTabStrip()) {
-+    return false;
-+  }
-   if (!browser_->SupportsWindowFeature(
-           Browser::WindowFeature::kFeatureBookmarkBar)) {
-     return false;
