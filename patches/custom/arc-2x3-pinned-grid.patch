@@ -1,5 +1,5 @@
---- /Users/romeet/.gemini/antigravity/brain/ab9d16f5-2209-4ee5-a608-2fc5ac020d2c/scratch/pinned_tab_container_view.cc	2026-09-13 21:06:36
-+++ scratch/pinned_tab_container_view_modified.cc	2026-09-13 21:06:50
+--- a/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
++++ b/chrome/browser/ui/views/tabs/common/pinned_tab_container_view.cc
 @@ -411,23 +411,17 @@
          size_bounds.width().value() -
          GetLayoutConstant(LayoutConstant::kVerticalTabStripHorizontalPadding);
